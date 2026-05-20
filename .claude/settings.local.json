@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(winget install Microsoft.OpenJDK.17 --silent --accept-package-agreements --accept-source-agreements 2>&1)",
+      "PowerShell(Get-ChildItem \"C:\\\\Program Files\\\\\" | Where-Object { $_.Name -match \"java|jdk|jre|adoptium|corretto|zulu|temurin\" -and $_.PSIsContainer } | Select-Object FullName)",
+      "PowerShell(Get-ChildItem \"C:\\\\\" -ErrorAction SilentlyContinue | Where-Object { $_.Name -match \"jdk|java\" -and $_.PSIsContainer } | Select-Object FullName; Get-ChildItem \"C:\\\\Program Files \\(x86\\)\\\\\" | Where-Object { $_.Name -match \"java|jdk\" -and $_.PSIsContainer } | Select-Object FullName)",
+      "Bash(npm install *)",
+      "Bash(npx tsc *)",
+      "Bash(python -m py_compile app/utils/validators.py app/schemas/auth.py app/core/security.py app/core/audit.py app/repositories/auth_repository.py app/services/auth_service.py app/routers/auth.py app/dependencies.py app/routers/users.py)",
+      "Bash(./mvnw test *)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\Users\\\\ttnminh\\\\jdk-17\\\\jdk-17.0.19+10\"; Set-Location D:\\\\Projects\\\\SkillMatrix\\\\repo\\\\backend; .\\\\mvnw.cmd --version 2>&1 | Select-Object -First 5)"
+    ]
+  }
+}

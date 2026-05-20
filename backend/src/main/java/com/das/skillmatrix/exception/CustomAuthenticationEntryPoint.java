@@ -1,0 +1,44 @@
+package com.das.skillmatrix.exception;
+
+import java.io.IOException;
+
+import org.springframework.http.MediaType;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.stereotype.Component;
+
+import com.das.skillmatrix.dto.response.ApiResponse;
+import com.das.skillmatrix.dto.response.ErrorResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+
+@Component
+@RequiredArgsConstructor
+public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
+
+    private static final String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
+
+    // `Bearer` (token auth) does NOT trigger the browser-native sign-in popup;
+    // `Basic` and `Digest` do. Explicitly override the scheme so even if Spring
+    // sets Basic somewhere upstream, our entry point overwrites it.
+    private static final String BEARER_CHALLENGE = "Bearer realm=\"api\"";
+
+    private final ObjectMapper objectMapper;
+
+    @Override
+    public void commence(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            AuthenticationException authException) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setHeader(HEADER_WWW_AUTHENTICATE, BEARER_CHALLENGE);
+
+        ApiResponse<Object> body = new ApiResponse<>(null, false, new ErrorResponse("Unauthorized", 401));
+
+        this.objectMapper.writeValue(response.getOutputStream(), body);
+    }
+}

@@ -1,0 +1,109 @@
+package com.das.skillmatrix.entity;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
+import org.hibernate.envers.RelationTargetAuditMode;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Entity
+@Table(name = "users")
+@Audited
+@Getter
+@Setter
+@NoArgsConstructor
+public class User extends BaseEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long userId;
+
+    @Column(nullable = false, unique = true)
+    private String email;
+
+    @NotAudited
+    private String passwordHash;
+
+    private String fullName;
+
+    private String userAvatar;
+    private String assessmentHistory;
+
+    private String phone;
+    
+    // Deactive fields
+    private String deactiveType; // "TEMPORARY" | "UNLIMITED"
+    private LocalDateTime deactiveUntil;
+    private LocalDateTime deActiveAt;
+
+    @ManyToOne
+    @JoinColumn(name = "department_id")
+    private Department department;
+
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "user_positions",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "position_id")
+    )
+    private List<Position> positions = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST,
+            CascadeType.MERGE }, orphanRemoval = true)
+    private List<UserSkill> userSkills;
+
+    @Column(nullable = false)
+    private boolean mustChangePassword = false;
+
+    @Column(nullable = false)
+    private boolean notificationEmail = true;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Language language = Language.EN;
+
+    private String role; // Admin, Manager Career, Manager Department, Manager Team, Staff
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private GeneralStatus status = GeneralStatus.ACTIVE;
+
+    @JsonIgnore
+    @NotAudited
+    @ManyToMany(mappedBy = "managers")
+    private List<Career> managedCareers = new ArrayList<>();
+
+    @JsonIgnore
+    @NotAudited
+    @ManyToMany(mappedBy = "managers")
+    private List<Department> managedDepartments = new ArrayList<>();
+
+    @JsonIgnore
+    @NotAudited
+    @ManyToMany(mappedBy = "managers")
+    private List<Team> managedTeams = new ArrayList<>();
+}

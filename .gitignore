@@ -1,0 +1,104 @@
+# ============================================================================
+# Skill Matrix — Root .gitignore
+# Cross-cutting rules. Framework-specific patterns live in:
+#   - backend/.gitignore   (Maven / Spring Boot)
+#   - frontend/.gitignore  (Next.js / Node)
+# ============================================================================
+
+# ─── OS noise ───────────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ─── Editors / IDEs ─────────────────────────────────────────────────────────
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.shared.json
+.project
+.classpath
+.settings/
+.factorypath
+.apt_generated/
+.springBeans
+.sts4-cache/
+.metadata/
+*.swp
+*.swo
+*~
+
+# ─── Secrets / local config ─────────────────────────────────────────────────
+
+secrets/
+backend/src/main/resources/application-local.properties
+backend/src/main/resources/application-*.local.properties
+
+# ─── Logs ───────────────────────────────────────────────────────────────────
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+hs_err_pid*.log
+replay_pid*.log
+
+# ─── Backend — Java / Maven / Spring Boot ───────────────────────────────────
+backend/target/
+!**/src/main/**/target/
+backend/!**/src/test/**/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+backend/build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+backend/*.class
+backend/*.jar
+backend/*.war
+backend/*.ear
+backend/*.nar
+backend/HELP.md
+backend/uploads/
+backend/tmp/
+
+# ─── Frontend — Node / Next.js ──────────────────────────────────────────────
+frontend/node_modules/
+frontend/.pnp/
+frontend/.pnp.js
+frontend/.next/
+frontend/out/
+frontend/dist/
+frontend/.cache/
+frontend/coverage/
+frontend/*.tsbuildinfo
+
+
+# ─── Test reports / coverage ────────────────────────────────────────────────
+**/surefire-reports/
+**/failsafe-reports/
+**/jacoco.exec
+**/jest-results.json
+**/junit.xml
+.nyc_output/
+
+# ─── Generated docs / temp ──────────────────────────────────────────────────
+*.tmp
+*.bak
+*.orig
+*.rej
+*.pid
+*.seed
+
+# ─── Local Claude/agent session state (keep skills, ignore session noise) ───
+.claude/local/
+.claude/cache/
+frontend/.claude/local/
+frontend/.claude/cache/

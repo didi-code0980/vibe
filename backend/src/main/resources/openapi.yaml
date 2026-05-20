@@ -1,0 +1,1819 @@
+openapi: "3.1.0"
+info: 
+  title: OpenAPI definition
+  version: v0
+servers: 
+  - 
+    url: "http://localhost:8080"
+    description: Generated server url
+paths: 
+  /api/users/{id}: 
+    get: 
+      tags: 
+        - user-controller
+      operationId: detail
+      parameters: 
+        - 
+          name: id
+          in: path
+          required: true
+          schema: 
+            type: integer
+            format: int64
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponseUserDetailResponse"
+    put: 
+      tags: 
+        - user-controller
+      operationId: update
+      parameters: 
+        - 
+          name: id
+          in: path
+          required: true
+          schema: 
+            type: integer
+            format: int64
+      requestBody: 
+        content: 
+          application/json: 
+            schema: 
+              $ref: "#/components/schemas/UpdateUserRequest"
+        required: true
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponseUserResponse"
+  /api/teams/{id}: 
+    get: 
+      tags: 
+        - team-controller
+      operationId: detail_1
+      parameters: 
+        - 
+          name: id
+          in: path
+          required: true
+          schema: 
+            type: integer
+            format: int64
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponseTeamDetailResponse"
+    put: 
+      tags: 
+        - team-controller
+      operationId: update_1
+      parameters: 
+        - 
+          name: id
+          in: path
+          required: true
+          schema: 
+            type: integer
+            format: int64
+      requestBody: 
+        content: 
+          application/json: 
+            schema: 
+              $ref: "#/components/schemas/TeamRequest"
+        required: true
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponseTeamResponse"
+    delete: 
+      tags: 
+        - team-controller
+      operationId: delete
+      parameters: 
+        - 
+          name: id
+          in: path
+          required: true
+          schema: 
+            type: integer
+            format: int64
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponseString"
+  /api/team-members/{id}: 
+    put: 
+      tags: 
+        - team-member-controller
+      operationId: update_2
+      parameters: 
+        - 
+          name: id
+          in: path
+          required: true
+          schema: 
+            type: integer
+            format: int64
+      requestBody: 
+        content: 
+          application/json: 
+            schema: 
+              $ref: "#/components/schemas/EditMemberRequest"
+        required: true
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponseTeamMemberResponse"
+    delete: 
+      tags: 
+        - team-member-controller
+      operationId: delete_1
+      parameters: 
+        - 
+          name: id
+          in: path
+          required: true
+          schema: 
+            type: integer
+            format: int64
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponseString"
+  /api/skills/{id}: 
+    get: 
+      tags: 
+        - skill-controller
+      operationId: getSkillById
+      parameters: 
+        - 
+          name: id
+          in: path
+          required: true
+          schema: 
+            type: integer
+            format: int64
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponseSkillResponse"
+    put: 
+      tags: 
+        - skill-controller
+      operationId: updateSkill
+      parameters: 
+        - 
+          name: id
+          in: path
+          required: true
+          schema: 
+            type: integer
+            format: int64
+      requestBody: 
+        content: 
+          application/json: 
+            schema: 
+              $ref: "#/components/schemas/SkillRequest"
+        required: true
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponseSkillResponse"
+    delete: 
+      tags: 
+        - skill-controller
+      operationId: deleteSkill
+      parameters: 
+        - 
+          name: id
+          in: path
+          required: true
+          schema: 
+            type: integer
+            format: int64
+      responses: 
+        200: 
+          description: OK
+  /api/departments/{id}: 
+    get: 
+      tags: 
+        - department-controller
+      operationId: detail_2
+      parameters: 
+        - 
+          name: id
+          in: path
+          required: true
+          schema: 
+            type: integer
+            format: int64
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponseDepartmentDetailResponse"
+    put: 
+      tags: 
+        - department-controller
+      operationId: update_3
+      parameters: 
+        - 
+          name: id
+          in: path
+          required: true
+          schema: 
+            type: integer
+            format: int64
+      requestBody: 
+        content: 
+          application/json: 
+            schema: 
+              $ref: "#/components/schemas/DepartmentRequest"
+        required: true
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponseDepartmentResponse"
+    delete: 
+      tags: 
+        - department-controller
+      operationId: delete_2
+      parameters: 
+        - 
+          name: id
+          in: path
+          required: true
+          schema: 
+            type: integer
+            format: int64
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponseString"
+  /api/careers/{id}: 
+    get: 
+      tags: 
+        - career-controller
+      operationId: detail_3
+      parameters: 
+        - 
+          name: id
+          in: path
+          required: true
+          schema: 
+            type: integer
+            format: int64
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponseCareerDetailResponse"
+    put: 
+      tags: 
+        - career-controller
+      operationId: update_4
+      parameters: 
+        - 
+          name: id
+          in: path
+          required: true
+          schema: 
+            type: integer
+            format: int64
+      requestBody: 
+        content: 
+          application/json: 
+            schema: 
+              $ref: "#/components/schemas/CareerRequest"
+        required: true
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponseCareerResponse"
+    delete: 
+      tags: 
+        - career-controller
+      operationId: delete_3
+      parameters: 
+        - 
+          name: id
+          in: path
+          required: true
+          schema: 
+            type: integer
+            format: int64
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponseString"
+  /api/users: 
+    get: 
+      tags: 
+        - user-controller
+      operationId: list
+      parameters: 
+        - 
+          name: filter
+          in: query
+          required: true
+          schema: 
+            $ref: "#/components/schemas/UserFilterRequest"
+        - 
+          name: pageable
+          in: query
+          required: true
+          schema: 
+            $ref: "#/components/schemas/Pageable"
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponsePageResponseUserResponse"
+    post: 
+      tags: 
+        - user-controller
+      operationId: create
+      requestBody: 
+        content: 
+          application/json: 
+            schema: 
+              $ref: "#/components/schemas/CreateUserRequest"
+        required: true
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponseUserResponse"
+  /api/users/{id}/reactivate: 
+    post: 
+      tags: 
+        - user-controller
+      operationId: reactivate
+      parameters: 
+        - 
+          name: id
+          in: path
+          required: true
+          schema: 
+            type: integer
+            format: int64
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponseUserResponse"
+  /api/users/{id}/deactivate-or-delete: 
+    post: 
+      tags: 
+        - user-controller
+      operationId: deactivateOrDelete
+      parameters: 
+        - 
+          name: id
+          in: path
+          required: true
+          schema: 
+            type: integer
+            format: int64
+      requestBody: 
+        content: 
+          application/json: 
+            schema: 
+              $ref: "#/components/schemas/DeactivateUserRequest"
+        required: true
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponseString"
+  /api/teams: 
+    get: 
+      tags: 
+        - team-controller
+      operationId: list_1
+      parameters: 
+        - 
+          name: filter
+          in: query
+          required: true
+          schema: 
+            $ref: "#/components/schemas/TeamFilterRequest"
+        - 
+          name: pageable
+          in: query
+          required: true
+          schema: 
+            $ref: "#/components/schemas/Pageable"
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponsePageResponseTeamResponse"
+    post: 
+      tags: 
+        - team-controller
+      operationId: create_1
+      requestBody: 
+        content: 
+          application/json: 
+            schema: 
+              $ref: "#/components/schemas/TeamRequest"
+        required: true
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponseTeamResponse"
+  /api/teams/{id}/managers/{userId}: 
+    post: 
+      tags: 
+        - team-controller
+      operationId: addManager
+      parameters: 
+        - 
+          name: id
+          in: path
+          required: true
+          schema: 
+            type: integer
+            format: int64
+        - 
+          name: userId
+          in: path
+          required: true
+          schema: 
+            type: integer
+            format: int64
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponseVoid"
+    delete: 
+      tags: 
+        - team-controller
+      operationId: removeManager
+      parameters: 
+        - 
+          name: id
+          in: path
+          required: true
+          schema: 
+            type: integer
+            format: int64
+        - 
+          name: userId
+          in: path
+          required: true
+          schema: 
+            type: integer
+            format: int64
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponseVoid"
+  /api/team-members/by-user: 
+    post: 
+      tags: 
+        - team-member-controller
+      operationId: addByUser
+      requestBody: 
+        content: 
+          application/json: 
+            schema: 
+              $ref: "#/components/schemas/AddMemberByUserRequest"
+        required: true
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponseListTeamMemberResponse"
+  /api/team-members/by-team: 
+    post: 
+      tags: 
+        - team-member-controller
+      operationId: addByTeam
+      requestBody: 
+        content: 
+          application/json: 
+            schema: 
+              $ref: "#/components/schemas/AddMemberByTeamRequest"
+        required: true
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponseTeamMemberResponse"
+  /api/skills: 
+    get: 
+      tags: 
+        - skill-controller
+      operationId: getAllSkills
+      parameters: 
+        - 
+          name: pageable
+          in: query
+          required: true
+          schema: 
+            $ref: "#/components/schemas/Pageable"
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponsePageResponseSkillResponse"
+    post: 
+      tags: 
+        - skill-controller
+      operationId: createSkill
+      requestBody: 
+        content: 
+          application/json: 
+            schema: 
+              $ref: "#/components/schemas/SkillRequest"
+        required: true
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponseSkillResponse"
+  /api/departments: 
+    get: 
+      tags: 
+        - department-controller
+      operationId: list_2
+      parameters: 
+        - 
+          name: careerId
+          in: query
+          required: true
+          schema: 
+            type: integer
+            format: int64
+        - 
+          name: filter
+          in: query
+          required: true
+          schema: 
+            $ref: "#/components/schemas/DepartmentFilterRequest"
+        - 
+          name: pageable
+          in: query
+          required: true
+          schema: 
+            $ref: "#/components/schemas/Pageable"
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponsePageResponseDepartmentResponse"
+    post: 
+      tags: 
+        - department-controller
+      operationId: create_2
+      requestBody: 
+        content: 
+          application/json: 
+            schema: 
+              $ref: "#/components/schemas/DepartmentRequest"
+        required: true
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponseDepartmentResponse"
+  /api/departments/{id}/managers/{userId}: 
+    post: 
+      tags: 
+        - department-controller
+      operationId: addManager_1
+      parameters: 
+        - 
+          name: id
+          in: path
+          required: true
+          schema: 
+            type: integer
+            format: int64
+        - 
+          name: userId
+          in: path
+          required: true
+          schema: 
+            type: integer
+            format: int64
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponseVoid"
+    delete: 
+      tags: 
+        - department-controller
+      operationId: removeManager_1
+      parameters: 
+        - 
+          name: id
+          in: path
+          required: true
+          schema: 
+            type: integer
+            format: int64
+        - 
+          name: userId
+          in: path
+          required: true
+          schema: 
+            type: integer
+            format: int64
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponseVoid"
+  /api/careers: 
+    get: 
+      tags: 
+        - career-controller
+      operationId: list_3
+      parameters: 
+        - 
+          name: filter
+          in: query
+          required: true
+          schema: 
+            $ref: "#/components/schemas/CareerFilterRequest"
+        - 
+          name: pageable
+          in: query
+          required: true
+          schema: 
+            $ref: "#/components/schemas/Pageable"
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponsePageResponseCareerResponse"
+    post: 
+      tags: 
+        - career-controller
+      operationId: create_3
+      requestBody: 
+        content: 
+          application/json: 
+            schema: 
+              $ref: "#/components/schemas/CareerRequest"
+        required: true
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponseCareerResponse"
+  /api/careers/{id}/managers/{userId}: 
+    post: 
+      tags: 
+        - career-controller
+      operationId: addManager_2
+      parameters: 
+        - 
+          name: id
+          in: path
+          required: true
+          schema: 
+            type: integer
+            format: int64
+        - 
+          name: userId
+          in: path
+          required: true
+          schema: 
+            type: integer
+            format: int64
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponseVoid"
+    delete: 
+      tags: 
+        - career-controller
+      operationId: removeManager_2
+      parameters: 
+        - 
+          name: id
+          in: path
+          required: true
+          schema: 
+            type: integer
+            format: int64
+        - 
+          name: userId
+          in: path
+          required: true
+          schema: 
+            type: integer
+            format: int64
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponseVoid"
+  /api/auth/refresh: 
+    post: 
+      tags: 
+        - auth-controller
+      operationId: refreshToken
+      requestBody: 
+        content: 
+          application/json: 
+            schema: 
+              $ref: "#/components/schemas/RefreshTokenRequest"
+        required: true
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponseRefreshTokenResponse"
+  /api/auth/logout: 
+    post: 
+      tags: 
+        - auth-controller
+      operationId: logout
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponseString"
+  /api/auth/login: 
+    post: 
+      tags: 
+        - auth-controller
+      operationId: login
+      requestBody: 
+        content: 
+          application/json: 
+            schema: 
+              $ref: "#/components/schemas/LoginRequest"
+        required: true
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponseLoginResponse"
+  /api/users/by-team/{teamId}: 
+    get: 
+      tags: 
+        - user-controller
+      operationId: listByTeam
+      parameters: 
+        - 
+          name: teamId
+          in: path
+          required: true
+          schema: 
+            type: integer
+            format: int64
+        - 
+          name: filter
+          in: query
+          required: true
+          schema: 
+            $ref: "#/components/schemas/UserFilterRequest"
+        - 
+          name: pageable
+          in: query
+          required: true
+          schema: 
+            $ref: "#/components/schemas/Pageable"
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponsePageResponseUserResponse"
+  /api/team-members: 
+    get: 
+      tags: 
+        - team-member-controller
+      operationId: listByTeam_1
+      parameters: 
+        - 
+          name: teamId
+          in: query
+          required: true
+          schema: 
+            type: integer
+            format: int64
+        - 
+          name: pageable
+          in: query
+          required: true
+          schema: 
+            $ref: "#/components/schemas/Pageable"
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponsePageResponseTeamMemberResponse"
+  /api/health: 
+    get: 
+      tags: 
+        - health-controller
+      operationId: health
+      responses: 
+        200: 
+          description: OK
+          content: 
+            */*: 
+              schema: 
+                $ref: "#/components/schemas/ApiResponseMapStringObject"
+components: 
+  schemas: 
+    UpdateUserRequest: 
+      type: object
+      properties: 
+        email: 
+          type: string
+        role: 
+          type: string
+        careerId: 
+          type: integer
+          format: int64
+        departmentId: 
+          type: integer
+          format: int64
+        teamId: 
+          type: integer
+          format: int64
+        positionIds: 
+          type: array
+          items: 
+            type: integer
+            format: int64
+      required: 
+        - email
+        - role
+    ApiResponseUserResponse: 
+      type: object
+      properties: 
+        data: 
+          $ref: "#/components/schemas/UserResponse"
+        success: 
+          type: boolean
+        error: 
+          $ref: "#/components/schemas/ErrorResponse"
+    ErrorResponse: 
+      type: object
+      properties: 
+        message: 
+          type: string
+        errorCode: 
+          type: integer
+          format: int32
+        details: 
+          type: object
+          additionalProperties: 
+            type: string
+    PositionBrief: 
+      type: object
+      properties: 
+        positionId: 
+          type: integer
+          format: int64
+        name: 
+          type: string
+    UserResponse: 
+      type: object
+      properties: 
+        userId: 
+          type: integer
+          format: int64
+        email: 
+          type: string
+        fullName: 
+          type: string
+        userAvatar: 
+          type: string
+        role: 
+          type: string
+        positions: 
+          type: array
+          items: 
+            $ref: "#/components/schemas/PositionBrief"
+        status: 
+          type: string
+          enum: 
+            - ACTIVE
+            - DEACTIVE
+            - DELETED
+        createdAt: 
+          type: string
+          format: date-time
+    TeamRequest: 
+      type: object
+      properties: 
+        name: 
+          type: string
+        description: 
+          type: string
+        departmentId: 
+          type: integer
+          format: int64
+      required: 
+        - departmentId
+        - name
+    ApiResponseTeamResponse: 
+      type: object
+      properties: 
+        data: 
+          $ref: "#/components/schemas/TeamResponse"
+        success: 
+          type: boolean
+        error: 
+          $ref: "#/components/schemas/ErrorResponse"
+    TeamResponse: 
+      type: object
+      properties: 
+        teamId: 
+          type: integer
+          format: int64
+        name: 
+          type: string
+        description: 
+          type: string
+        departmentId: 
+          type: integer
+          format: int64
+        departmentName: 
+          type: string
+        status: 
+          type: string
+          enum: 
+            - ACTIVE
+            - DEACTIVE
+            - DELETED
+        createdAt: 
+          type: string
+          format: date-time
+    EditMemberRequest: 
+      type: object
+      properties: 
+        positionId: 
+          type: integer
+          format: int64
+      required: 
+        - positionId
+    ApiResponseTeamMemberResponse: 
+      type: object
+      properties: 
+        data: 
+          $ref: "#/components/schemas/TeamMemberResponse"
+        success: 
+          type: boolean
+        error: 
+          $ref: "#/components/schemas/ErrorResponse"
+    TeamMemberResponse: 
+      type: object
+      properties: 
+        id: 
+          type: integer
+          format: int64
+        userId: 
+          type: integer
+          format: int64
+        email: 
+          type: string
+        fullName: 
+          type: string
+        teamId: 
+          type: integer
+          format: int64
+        teamName: 
+          type: string
+        positionId: 
+          type: integer
+          format: int64
+        positionName: 
+          type: string
+        createdAt: 
+          type: string
+          format: date-time
+    SkillRequest: 
+      type: object
+      properties: 
+        name: 
+          type: string
+        description: 
+          type: string
+      required: 
+        - description
+        - name
+    ApiResponseSkillResponse: 
+      type: object
+      properties: 
+        data: 
+          $ref: "#/components/schemas/SkillResponse"
+        success: 
+          type: boolean
+        error: 
+          $ref: "#/components/schemas/ErrorResponse"
+    SkillResponse: 
+      type: object
+      properties: 
+        skillId: 
+          type: integer
+          format: int64
+        name: 
+          type: string
+        description: 
+          type: string
+        status: 
+          type: string
+          enum: 
+            - ACTIVE
+            - INACTIVE
+            - DELETED
+    DepartmentRequest: 
+      type: object
+      properties: 
+        name: 
+          type: string
+        description: 
+          type: string
+        careerId: 
+          type: integer
+          format: int64
+      required: 
+        - careerId
+        - name
+    ApiResponseDepartmentResponse: 
+      type: object
+      properties: 
+        data: 
+          $ref: "#/components/schemas/DepartmentResponse"
+        success: 
+          type: boolean
+        error: 
+          $ref: "#/components/schemas/ErrorResponse"
+    DepartmentResponse: 
+      type: object
+      properties: 
+        departmentId: 
+          type: integer
+          format: int64
+        name: 
+          type: string
+        description: 
+          type: string
+        careerId: 
+          type: integer
+          format: int64
+        careerName: 
+          type: string
+        status: 
+          type: string
+          enum: 
+            - ACTIVE
+            - DEACTIVE
+            - DELETED
+        createdAt: 
+          type: string
+          format: date-time
+    CareerRequest: 
+      type: object
+      properties: 
+        name: 
+          type: string
+        careerType: 
+          type: string
+        description: 
+          type: string
+      required: 
+        - careerType
+        - name
+    ApiResponseCareerResponse: 
+      type: object
+      properties: 
+        data: 
+          $ref: "#/components/schemas/CareerResponse"
+        success: 
+          type: boolean
+        error: 
+          $ref: "#/components/schemas/ErrorResponse"
+    CareerResponse: 
+      type: object
+      properties: 
+        careerId: 
+          type: integer
+          format: int64
+        name: 
+          type: string
+        careerType: 
+          type: string
+        description: 
+          type: string
+        status: 
+          type: string
+          enum: 
+            - ACTIVE
+            - DEACTIVE
+            - DELETED
+        createdAt: 
+          type: string
+          format: date-time
+    CreateUserRequest: 
+      type: object
+      properties: 
+        email: 
+          type: string
+        role: 
+          type: string
+        careerId: 
+          type: integer
+          format: int64
+        departmentId: 
+          type: integer
+          format: int64
+        teamId: 
+          type: integer
+          format: int64
+        positionIds: 
+          type: array
+          items: 
+            type: integer
+            format: int64
+      required: 
+        - email
+        - role
+    DeactivateUserRequest: 
+      type: object
+      properties: 
+        action: 
+          type: string
+        deactiveType: 
+          type: string
+        duration: 
+          type: string
+      required: 
+        - action
+    ApiResponseString: 
+      type: object
+      properties: 
+        data: 
+          type: string
+        success: 
+          type: boolean
+        error: 
+          $ref: "#/components/schemas/ErrorResponse"
+    ApiResponseVoid: 
+      type: object
+      properties: 
+        data: 
+          type: object
+        success: 
+          type: boolean
+        error: 
+          $ref: "#/components/schemas/ErrorResponse"
+    AddMemberByUserRequest: 
+      type: object
+      properties: 
+        userId: 
+          type: integer
+          format: int64
+        assignments: 
+          type: array
+          items: 
+            $ref: "#/components/schemas/Assignment"
+      required: 
+        - assignments
+        - userId
+    Assignment: 
+      type: object
+      properties: 
+        teamId: 
+          type: integer
+          format: int64
+        positionId: 
+          type: integer
+          format: int64
+      required: 
+        - positionId
+        - teamId
+    ApiResponseListTeamMemberResponse: 
+      type: object
+      properties: 
+        data: 
+          type: array
+          items: 
+            $ref: "#/components/schemas/TeamMemberResponse"
+        success: 
+          type: boolean
+        error: 
+          $ref: "#/components/schemas/ErrorResponse"
+    AddMemberByTeamRequest: 
+      type: object
+      properties: 
+        teamId: 
+          type: integer
+          format: int64
+        email: 
+          type: string
+        positionId: 
+          type: integer
+          format: int64
+      required: 
+        - email
+        - positionId
+        - teamId
+    RefreshTokenRequest: 
+      type: object
+      properties: 
+        refreshToken: 
+          type: string
+      required: 
+        - refreshToken
+    ApiResponseRefreshTokenResponse: 
+      type: object
+      properties: 
+        data: 
+          $ref: "#/components/schemas/RefreshTokenResponse"
+        success: 
+          type: boolean
+        error: 
+          $ref: "#/components/schemas/ErrorResponse"
+    RefreshTokenResponse: 
+      type: object
+      properties: 
+        accessToken: 
+          type: string
+    LoginRequest: 
+      type: object
+      properties: 
+        email: 
+          type: string
+        password: 
+          type: string
+      required: 
+        - email
+        - password
+    ApiResponseLoginResponse: 
+      type: object
+      properties: 
+        data: 
+          $ref: "#/components/schemas/LoginResponse"
+        success: 
+          type: boolean
+        error: 
+          $ref: "#/components/schemas/ErrorResponse"
+    LoginResponse: 
+      type: object
+      properties: 
+        accessToken: 
+          type: string
+        refreshToken: 
+          type: string
+    UserFilterRequest: 
+      type: object
+      properties: 
+        keyword: 
+          type: string
+        status: 
+          type: string
+          enum: 
+            - ACTIVE
+            - DEACTIVE
+            - DELETED
+        dateModified: 
+          type: string
+        teamId: 
+          type: integer
+          format: int64
+    Pageable: 
+      type: object
+      properties: 
+        page: 
+          type: integer
+          format: int32
+          minimum: 0
+        size: 
+          type: integer
+          format: int32
+          minimum: 1
+        sort: 
+          type: array
+          items: 
+            type: string
+    ApiResponsePageResponseUserResponse: 
+      type: object
+      properties: 
+        data: 
+          $ref: "#/components/schemas/PageResponseUserResponse"
+        success: 
+          type: boolean
+        error: 
+          $ref: "#/components/schemas/ErrorResponse"
+    PageResponseUserResponse: 
+      type: object
+      properties: 
+        items: 
+          type: array
+          items: 
+            $ref: "#/components/schemas/UserResponse"
+        page: 
+          type: integer
+          format: int32
+        size: 
+          type: integer
+          format: int32
+        totalElements: 
+          type: integer
+          format: int64
+        totalPages: 
+          type: integer
+          format: int32
+        hasNext: 
+          type: boolean
+        hasPrevious: 
+          type: boolean
+    ApiResponseUserDetailResponse: 
+      type: object
+      properties: 
+        data: 
+          $ref: "#/components/schemas/UserDetailResponse"
+        success: 
+          type: boolean
+        error: 
+          $ref: "#/components/schemas/ErrorResponse"
+    UserDetailResponse: 
+      type: object
+      properties: 
+        userId: 
+          type: integer
+          format: int64
+        email: 
+          type: string
+        fullName: 
+          type: string
+        userAvatar: 
+          type: string
+        phone: 
+          type: string
+        role: 
+          type: string
+        status: 
+          type: string
+          enum: 
+            - ACTIVE
+            - DEACTIVE
+            - DELETED
+        deactiveType: 
+          type: string
+        deactiveUntil: 
+          type: string
+          format: date-time
+        positions: 
+          type: array
+          items: 
+            $ref: "#/components/schemas/PositionBrief"
+        careerId: 
+          type: integer
+          format: int64
+        careerName: 
+          type: string
+        departmentId: 
+          type: integer
+          format: int64
+        departmentName: 
+          type: string
+        teamId: 
+          type: integer
+          format: int64
+        teamName: 
+          type: string
+        createdAt: 
+          type: string
+          format: date-time
+    TeamFilterRequest: 
+      type: object
+      properties: 
+        keyword: 
+          type: string
+        status: 
+          type: string
+          enum: 
+            - ACTIVE
+            - DEACTIVE
+            - DELETED
+        dateModified: 
+          type: string
+        departmentId: 
+          type: integer
+          format: int64
+    ApiResponsePageResponseTeamResponse: 
+      type: object
+      properties: 
+        data: 
+          $ref: "#/components/schemas/PageResponseTeamResponse"
+        success: 
+          type: boolean
+        error: 
+          $ref: "#/components/schemas/ErrorResponse"
+    PageResponseTeamResponse: 
+      type: object
+      properties: 
+        items: 
+          type: array
+          items: 
+            $ref: "#/components/schemas/TeamResponse"
+        page: 
+          type: integer
+          format: int32
+        size: 
+          type: integer
+          format: int32
+        totalElements: 
+          type: integer
+          format: int64
+        totalPages: 
+          type: integer
+          format: int32
+        hasNext: 
+          type: boolean
+        hasPrevious: 
+          type: boolean
+    ApiResponseTeamDetailResponse: 
+      type: object
+      properties: 
+        data: 
+          $ref: "#/components/schemas/TeamDetailResponse"
+        success: 
+          type: boolean
+        error: 
+          $ref: "#/components/schemas/ErrorResponse"
+    TeamDetailResponse: 
+      type: object
+      properties: 
+        teamId: 
+          type: integer
+          format: int64
+        name: 
+          type: string
+        description: 
+          type: string
+        departmentId: 
+          type: integer
+          format: int64
+        departmentName: 
+          type: string
+        status: 
+          type: string
+          enum: 
+            - ACTIVE
+            - DEACTIVE
+            - DELETED
+        createdAt: 
+          type: string
+          format: date-time
+        memberCount: 
+          type: integer
+          format: int64
+    ApiResponsePageResponseTeamMemberResponse: 
+      type: object
+      properties: 
+        data: 
+          $ref: "#/components/schemas/PageResponseTeamMemberResponse"
+        success: 
+          type: boolean
+        error: 
+          $ref: "#/components/schemas/ErrorResponse"
+    PageResponseTeamMemberResponse: 
+      type: object
+      properties: 
+        items: 
+          type: array
+          items: 
+            $ref: "#/components/schemas/TeamMemberResponse"
+        page: 
+          type: integer
+          format: int32
+        size: 
+          type: integer
+          format: int32
+        totalElements: 
+          type: integer
+          format: int64
+        totalPages: 
+          type: integer
+          format: int32
+        hasNext: 
+          type: boolean
+        hasPrevious: 
+          type: boolean
+    ApiResponsePageResponseSkillResponse: 
+      type: object
+      properties: 
+        data: 
+          $ref: "#/components/schemas/PageResponseSkillResponse"
+        success: 
+          type: boolean
+        error: 
+          $ref: "#/components/schemas/ErrorResponse"
+    PageResponseSkillResponse: 
+      type: object
+      properties: 
+        items: 
+          type: array
+          items: 
+            $ref: "#/components/schemas/SkillResponse"
+        page: 
+          type: integer
+          format: int32
+        size: 
+          type: integer
+          format: int32
+        totalElements: 
+          type: integer
+          format: int64
+        totalPages: 
+          type: integer
+          format: int32
+        hasNext: 
+          type: boolean
+        hasPrevious: 
+          type: boolean
+    ApiResponseMapStringObject: 
+      type: object
+      properties: 
+        data: 
+          type: object
+          additionalProperties: {}
+        success: 
+          type: boolean
+        error: 
+          $ref: "#/components/schemas/ErrorResponse"
+    DepartmentFilterRequest: 
+      type: object
+      properties: 
+        keyword: 
+          type: string
+        status: 
+          type: string
+          enum: 
+            - ACTIVE
+            - DEACTIVE
+            - DELETED
+        dateModified: 
+          type: string
+        careerId: 
+          type: integer
+          format: int64
+    ApiResponsePageResponseDepartmentResponse: 
+      type: object
+      properties: 
+        data: 
+          $ref: "#/components/schemas/PageResponseDepartmentResponse"
+        success: 
+          type: boolean
+        error: 
+          $ref: "#/components/schemas/ErrorResponse"
+    PageResponseDepartmentResponse: 
+      type: object
+      properties: 
+        items: 
+          type: array
+          items: 
+            $ref: "#/components/schemas/DepartmentResponse"
+        page: 
+          type: integer
+          format: int32
+        size: 
+          type: integer
+          format: int32
+        totalElements: 
+          type: integer
+          format: int64
+        totalPages: 
+          type: integer
+          format: int32
+        hasNext: 
+          type: boolean
+        hasPrevious: 
+          type: boolean
+    ApiResponseDepartmentDetailResponse: 
+      type: object
+      properties: 
+        data: 
+          $ref: "#/components/schemas/DepartmentDetailResponse"
+        success: 
+          type: boolean
+        error: 
+          $ref: "#/components/schemas/ErrorResponse"
+    DepartmentDetailResponse: 
+      type: object
+      properties: 
+        departmentId: 
+          type: integer
+          format: int64
+        name: 
+          type: string
+        description: 
+          type: string
+        careerId: 
+          type: integer
+          format: int64
+        careerName: 
+          type: string
+        status: 
+          type: string
+          enum: 
+            - ACTIVE
+            - DEACTIVE
+            - DELETED
+        createdAt: 
+          type: string
+          format: date-time
+        totalTeams: 
+          type: integer
+          format: int64
+    CareerFilterRequest: 
+      type: object
+      properties: 
+        keyword: 
+          type: string
+        status: 
+          type: string
+          enum: 
+            - ACTIVE
+            - DEACTIVE
+            - DELETED
+        dateModified: 
+          type: string
+    ApiResponsePageResponseCareerResponse: 
+      type: object
+      properties: 
+        data: 
+          $ref: "#/components/schemas/PageResponseCareerResponse"
+        success: 
+          type: boolean
+        error: 
+          $ref: "#/components/schemas/ErrorResponse"
+    PageResponseCareerResponse: 
+      type: object
+      properties: 
+        items: 
+          type: array
+          items: 
+            $ref: "#/components/schemas/CareerResponse"
+        page: 
+          type: integer
+          format: int32
+        size: 
+          type: integer
+          format: int32
+        totalElements: 
+          type: integer
+          format: int64
+        totalPages: 
+          type: integer
+          format: int32
+        hasNext: 
+          type: boolean
+        hasPrevious: 
+          type: boolean
+    ApiResponseCareerDetailResponse: 
+      type: object
+      properties: 
+        data: 
+          $ref: "#/components/schemas/CareerDetailResponse"
+        success: 
+          type: boolean
+        error: 
+          $ref: "#/components/schemas/ErrorResponse"
+    CareerDetailResponse: 
+      type: object
+      properties: 
+        careerId: 
+          type: integer
+          format: int64
+        name: 
+          type: string
+        careerType: 
+          type: string
+        description: 
+          type: string
+        departmentsCount: 
+          type: integer
+          format: int64
+        departments: 
+          type: array
+          items: 
+            $ref: "#/components/schemas/DepartmentBrief"
+        status: 
+          type: string
+          enum: 
+            - ACTIVE
+            - DEACTIVE
+            - DELETED
+        createdAt: 
+          type: string
+          format: date-time
+    DepartmentBrief: 
+      type: object
+      properties: 
+        departmentId: 
+          type: integer
+          format: int64
+        name: 
+          type: string

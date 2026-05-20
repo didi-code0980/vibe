@@ -1,0 +1,45 @@
+export type TriggerEvent =
+  | 'ACCOUNT_CREATED'
+  | 'PASSWORD_RESET'
+  | 'DOCUMENT_ASSIGNED'
+  | 'LEARNING_REMINDER'
+  | 'GOAL_SUGGESTED'
+  | 'ASSESSMENT_REVIEWED'
+
+export const TRIGGER_EVENTS: TriggerEvent[] = [
+  'ACCOUNT_CREATED',
+  'PASSWORD_RESET',
+  'DOCUMENT_ASSIGNED',
+  'LEARNING_REMINDER',
+  'GOAL_SUGGESTED',
+  'ASSESSMENT_REVIEWED',
+]
+
+export const CRITICAL_TRIGGER_EVENTS: ReadonlySet<TriggerEvent> = new Set<TriggerEvent>([
+  'ACCOUNT_CREATED',
+  'PASSWORD_RESET',
+  'DOCUMENT_ASSIGNED',
+])
+
+export type AdminRole =
+  | 'ADMIN'
+  | 'MANAGER_CAREER'
+  | 'MANAGER_DEPARTMENT'
+  | 'MANAGER_TEAM'
+  | 'STAFF'
+
+export const ADMIN_ROLES: AdminRole[] = [
+  'ADMIN',
+  'MANAGER_CAREER',
+  'MANAGER_DEPARTMENT',
+  'MANAGER_TEAM',
+  'STAFF',
+]
+
+export type FeatureKey = 'CROSS_TEAM_RESOURCE_MATCH' | 'VIEW_AUDIT_LOGS' | 'EXPORT_REPORTS'
+
+export const FEATURE_KEYS: FeatureKey[] = [
+  'CROSS_TEAM_RESOURCE_MATCH',
+  'VIEW_AUDIT_LOGS',
+  'EXPORT_REPORTS',
+]

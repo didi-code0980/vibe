@@ -1,0 +1,305 @@
+openapi: 3.1.0
+info:
+  title: Skill Matrix API
+  version: 1.0.0
+paths:
+  /api/auth/login:
+    post:
+      tags:
+      - Auth
+      summary: Login
+      operationId: login_api_auth_login_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse_LoginResponse_'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/auth/logout:
+    post:
+      tags:
+      - Auth
+      summary: Logout
+      operationId: logout_api_auth_logout_post
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse_str_'
+  /api/auth/refresh:
+    post:
+      tags:
+      - Auth
+      summary: Refresh
+      operationId: refresh_api_auth_refresh_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse_RefreshResponse_'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/users/me:
+    get:
+      tags:
+      - Users
+      summary: Get Me
+      operationId: get_me_api_users_me_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse_dict_'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/users:
+    get:
+      tags:
+      - Users
+      summary: List Users
+      operationId: list_users_api_users_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse_list_'
+  /api/health:
+    get:
+      tags:
+      - Health
+      summary: Health
+      description: Liveness probe — confirms the API process is up. Does not touch the database.
+      operationId: health_api_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse_dict_'
+  /api/health/db:
+    get:
+      tags:
+      - Health
+      summary: Health Db
+      description: Readiness probe — confirms the database is reachable. Returns 503 when not.
+      operationId: health_db_api_health_db_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+components:
+  schemas:
+    ApiResponse_LoginResponse_:
+      properties:
+        success:
+          type: boolean
+          title: Success
+          default: true
+        message:
+          type: string
+          title: Message
+          default: OK
+        data:
+          anyOf:
+          - $ref: '#/components/schemas/LoginResponse'
+          - type: 'null'
+      type: object
+      title: ApiResponse[LoginResponse]
+    ApiResponse_RefreshResponse_:
+      properties:
+        success:
+          type: boolean
+          title: Success
+          default: true
+        message:
+          type: string
+          title: Message
+          default: OK
+        data:
+          anyOf:
+          - $ref: '#/components/schemas/RefreshResponse'
+          - type: 'null'
+      type: object
+      title: ApiResponse[RefreshResponse]
+    ApiResponse_dict_:
+      properties:
+        success:
+          type: boolean
+          title: Success
+          default: true
+        message:
+          type: string
+          title: Message
+          default: OK
+        data:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Data
+      type: object
+      title: ApiResponse[dict]
+    ApiResponse_list_:
+      properties:
+        success:
+          type: boolean
+          title: Success
+          default: true
+        message:
+          type: string
+          title: Message
+          default: OK
+        data:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          title: Data
+      type: object
+      title: ApiResponse[list]
+    ApiResponse_str_:
+      properties:
+        success:
+          type: boolean
+          title: Success
+          default: true
+        message:
+          type: string
+          title: Message
+          default: OK
+        data:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Data
+      type: object
+      title: ApiResponse[str]
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    LoginRequest:
+      properties:
+        email:
+          type: string
+          format: email
+          title: Email
+        password:
+          type: string
+          title: Password
+      type: object
+      required:
+      - email
+      - password
+      title: LoginRequest
+    LoginResponse:
+      properties:
+        access_token:
+          type: string
+          title: Access Token
+        refresh_token:
+          type: string
+          title: Refresh Token
+        token_type:
+          type: string
+          title: Token Type
+          default: bearer
+        requires_password_change:
+          type: boolean
+          title: Requires Password Change
+          default: false
+      type: object
+      required:
+      - access_token
+      - refresh_token
+      title: LoginResponse
+    RefreshRequest:
+      properties:
+        refresh_token:
+          type: string
+          title: Refresh Token
+      type: object
+      required:
+      - refresh_token
+      title: RefreshRequest
+    RefreshResponse:
+      properties:
+        access_token:
+          type: string
+          title: Access Token
+      type: object
+      required:
+      - access_token
+      title: RefreshResponse
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /api/auth/login
