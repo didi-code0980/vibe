@@ -2,6 +2,7 @@
 
 import { Card, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Toggle } from '@/components/ui/Toggle'
+import { ChangePasswordForm } from '@/features/auth/components/ChangePasswordForm'
 
 const notifications = [
   { label: 'Assessment reminders',  sub: 'Get notified before assessment deadlines',       on: true  },
@@ -83,6 +84,12 @@ export default function SettingsPage() {
           {privacy.map(p => (
             <ToggleRow key={p.label} label={p.label} sub={p.sub} defaultOn={p.on} />
           ))}
+        </Card>
+
+        <Card id="security">
+          <CardTitle className="mb-1">Security</CardTitle>
+          <p className="text-[12px] text-muted mb-4">Change your password</p>
+          <ChangePasswordForm mode="settings" />
         </Card>
       </div>
     </div>

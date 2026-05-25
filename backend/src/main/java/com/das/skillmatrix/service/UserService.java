@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import com.das.skillmatrix.annotation.LogActivity;
+import com.das.skillmatrix.constants.UsmConstants;
 import com.das.skillmatrix.dto.request.CreateUserRequest;
 import com.das.skillmatrix.dto.request.DeactivateUserRequest;
 import com.das.skillmatrix.dto.request.UpdateUserRequest;
@@ -29,6 +30,7 @@ import com.das.skillmatrix.entity.GeneralStatus;
 import com.das.skillmatrix.entity.Position;
 import com.das.skillmatrix.entity.Team;
 import com.das.skillmatrix.entity.TeamMember;
+import com.das.skillmatrix.entity.TriggerEvent;
 import com.das.skillmatrix.entity.User;
 import com.das.skillmatrix.exception.ResourceNotFoundException;
 import com.das.skillmatrix.repository.CareerRepository;
@@ -38,6 +40,9 @@ import com.das.skillmatrix.repository.TeamMemberRepository;
 import com.das.skillmatrix.repository.TeamRepository;
 import com.das.skillmatrix.repository.UserRepository;
 import com.das.skillmatrix.repository.specification.UserSpecification;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,6 +62,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final PermissionService permissionService;
     private final BusinessChangeLogService logService;
+    private final EmailService emailService;
     
     private static final String PWD_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%";
     private final SecureRandom secureRandom = new SecureRandom();
@@ -91,28 +97,39 @@ public class UserService {
     @Transactional
     @LogActivity(action = "CREATE_USER", entityType = "USER")
     public UserResponse create(CreateUserRequest req) {
-        User currentUser = permissionService.getCurrentUser();
-        validateEmailUnique(req.getEmail(), null);
-        validateCreatePermission(currentUser, req);
-        List<Position> positions = fetchAndValidatePositions(req.getPositionIds(), req.getRole());
+        User currentUser = this.permissionService.getCurrentUser();
+        this.validateEmailUnique(req.getEmail(), null);
+        this.validateCreatePermission(currentUser, req);
+        List<Position> positions = this.fetchAndValidatePositions(req.getPositionIds(), req.getRole());
         User user = new User();
         user.setEmail(req.getEmail().trim().toLowerCase());
-        String rawPassword = generateRandomPassword();
-        user.setPasswordHash(passwordEncoder.encode(rawPassword));
+        user.setFullName(req.getFullName());
+        String rawPassword = this.generateRandomPassword();
+        user.setPasswordHash(this.passwordEncoder.encode(rawPassword));
         log.debug("Generated password for new user: {}", rawPassword);
         user.setRole(req.getRole());
         user.setStatus(GeneralStatus.ACTIVE);
+        user.setMustChangePassword(true);
         if (!positions.isEmpty()) {
             user.setPositions(new ArrayList<>(positions));
         }
-        user = userRepository.save(user);
-        assignScope(user, req.getCareerId(), req.getDepartmentId(), req.getTeamId());
+        user = this.userRepository.save(user);
+        this.assignScope(user, req.getCareerId(), req.getDepartmentId(), req.getTeamId());
         List<BusinessChangeLogService.FieldChange> fieldChanges = List.of(
             new BusinessChangeLogService.FieldChange("email", null, user.getEmail()),
             new BusinessChangeLogService.FieldChange("role", null, user.getRole())
         );
-        logService.log("CREATE_USER", "USER", user.getUserId(), fieldChanges);
-        return toResponse(user);
+        this.logService.log("CREATE_USER", "USER", user.getUserId(), fieldChanges);
+        this.sendAccountCreatedEmail(user, rawPassword);
+        return this.toResponse(user);
+    }
+
+    private void sendAccountCreatedEmail(User user, String rawPassword) {
+        Map<String, String> vars = new HashMap<>();
+        vars.put(UsmConstants.EMAIL_VAR_FULL_NAME, user.getFullName());
+        vars.put(UsmConstants.EMAIL_VAR_EMAIL, user.getEmail());
+        vars.put(UsmConstants.EMAIL_VAR_TEMP_PASSWORD, rawPassword);
+        this.emailService.send(TriggerEvent.ACCOUNT_CREATED, user.getEmail(), vars);
     }
 
     @Transactional

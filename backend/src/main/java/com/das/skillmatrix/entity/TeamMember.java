@@ -1,5 +1,7 @@
 package com.das.skillmatrix.entity;
 
+import java.time.LocalDateTime;
+
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 
@@ -39,4 +41,6 @@ public class TeamMember extends BaseEntity {
     @JoinColumn(name = "position_id")
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     private Position position;
+
+    private LocalDateTime leftAt;
 }

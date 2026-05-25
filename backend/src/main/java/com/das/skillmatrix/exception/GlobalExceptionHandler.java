@@ -13,6 +13,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.das.skillmatrix.dto.response.ApiResponse;
 import com.das.skillmatrix.dto.response.ErrorResponse;
@@ -188,6 +189,22 @@ public class GlobalExceptionHandler {
                 userMessage = "Cannot reactivate: user is not deactivated";
                 status = HttpStatus.BAD_REQUEST;
                 break;
+            case "CANNOT_LOCK_SELF":
+                userMessage = "You cannot lock or unlock your own account";
+                status = HttpStatus.UNPROCESSABLE_ENTITY;
+                break;
+            case "CANNOT_DELETE_SELF":
+                userMessage = "You cannot delete your own account";
+                status = HttpStatus.UNPROCESSABLE_ENTITY;
+                break;
+            case "INVALID_STATUS_TRANSITION":
+                userMessage = "Invalid status value — only ACTIVE or LOCKED are accepted";
+                status = HttpStatus.BAD_REQUEST;
+                break;
+            case "FULL_NAME_REQUIRED":
+                userMessage = "Full name is required";
+                status = HttpStatus.BAD_REQUEST;
+                break;
             default:
                 userMessage = e.getMessage() != null ? e.getMessage() : "Bad request";
                 status = HttpStatus.BAD_REQUEST;
@@ -241,6 +258,15 @@ public class GlobalExceptionHandler {
         ApiResponse<Object> response = new ApiResponse<>(null, false, errorResponse);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleNoResourceFound(NoResourceFoundException e) {
+        log.warn("No handler for request: {}", e.getResourcePath());
+        String message = "Endpoint not found: " + e.getResourcePath();
+        ErrorResponse errorResponse = new ErrorResponse(message, 404);
+        ApiResponse<Object> response = new ApiResponse<>(null, false, errorResponse);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     @ExceptionHandler(Exception.class)

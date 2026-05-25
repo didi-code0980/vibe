@@ -46,147 +46,196 @@
 
 ---
 
-# USM · User Management
+---
+
+## User Cases & User Experience
+
+> Companion to the technical contracts above. Each USM sub-feature is restated as a user story plus the expected user journey and UX behavior. **All USM features are Admin-only** — no Manager or User ever reaches these screens.
 
 ---
 
-## USM-01 · List Users
+### USM-01 · List Users
 
-**Roles:** `ADMIN`
+**As an** Admin
+**I want to** browse, search, and filter every user account in the system
+**So that** I can find the right person quickly when I need to make a change.
 
-**Backend:**
-- `GET /api/admin/users`
-- **Query params:** `search` (partial name or email), `status` (`ACTIVE|LOCKED|DELETED`), `position_id`, `created_from` (date), `created_to` (date), `sort_by` (`created_at|full_name`), `sort_dir` (`asc|desc`), `page`, `page_size`.
-- **Default sort:** `created_at DESC`.
-- **Response:** `{ data: [{ id, full_name, avatar_url, email, position_name, status, created_at }], total, page, page_size }`
+**User Journey**
+1. From the admin sidebar I click **Users** → I land on `/admin/users`.
+2. The page shows a data table with columns: **Avatar · Full Name · Email · Position · Status · Created · Actions**.
+3. The default sort is *newest first* (`created_at DESC`).
+4. At the top of the table:
+   - A **search bar** (placeholder *"Search by name or email…"*).
+   - Filter chips/dropdowns: **Status** (All / Active / Locked / Deleted), **Position**, **Created date range**.
+   - A **+ New user** button (top-right) — see USM-05.
+5. Search is debounced (~300 ms); results update without a full page reload.
+6. Each row shows a **Status badge**:
+   - 🟢 ACTIVE (green)
+   - 🟡 LOCKED (amber)
+   - ⚫ DELETED (grey, muted row)
+7. Each row's **Actions** column has a `⋯` menu: **View · Lock/Unlock · Delete**.
+8. Clicking a row (anywhere except Actions) opens the user detail page.
+9. Pagination footer: *"Showing 1–20 of 134"* with page-size selector (20/50/100) and prev/next.
 
-**Frontend:**
-- Page: `/admin/users`
-- Data table with columns: Avatar, Full Name, Email, Position, Status (badge), Created At, Actions (View / Lock / Delete).
-- Search bar, filter dropdowns (Status, Position, Date range).
-- Pagination component.
-
----
-
-## USM-02 · View User Activity Logs
-
-**Roles:** `ADMIN`
-
-**Backend:**
-- `GET /api/admin/users/:id/activity`
-- **Response:** Paginated `AuditLog` records where `actor_id = :id`, ordered by `created_at DESC`.
-- **Fields:** `action`, `entity_type`, `entity_id`, `old_data`, `new_data`, `ip_address`, `created_at`.
-
-**Frontend:**
-- User detail page: "Activity Logs" tab.
-- Timeline or table view of log entries with expandable `old_data`/`new_data` diff.
-
----
-
-## USM-03 · Lock / Unlock Account
-
-**Roles:** `ADMIN`
-
-**Backend:**
-- `PATCH /api/admin/users/:id/status`
-- **Request body:** `{ status: "LOCKED" | "ACTIVE" }`
-- **Rule:** Admin cannot lock their own account.
-- **Audit:** Log `user_locked` or `user_unlocked`.
-
-**Frontend:**
-- Toggle button in user list actions and user detail page.
-- Confirm dialog before locking.
+**UX Expectations**
+- Empty state (filtered out): *"No users match your filters. Try clearing them."* with a **Clear filters** link.
+- Empty state (system has no users): *"No users yet. **+ Create the first user**."*
+- Deleted users are hidden by default; show via the **Status: Deleted** filter.
+- The filter state is reflected in the URL query string so admins can share a filtered link.
+- Keyboard: `/` focuses search, `↑/↓` navigates rows, `Enter` opens the focused row.
+- Bulk-select with checkboxes is **out of scope for v1** (single-row actions only).
 
 ---
 
-## USM-04 · Delete Account (Soft Delete)
+### USM-02 · View User Activity Logs
 
-**Roles:** `ADMIN`
+**As an** Admin
+**I want to** see everything a user has done in the system
+**So that** I can investigate security incidents, audit changes, or troubleshoot user issues.
 
-**Backend:**
-- `DELETE /api/admin/users/:id`
-- **Logic:** Set `status = DELETED`, `deleted_at = now()`. Remove user from all active `TeamMember` and `ProjectMember` records (set `left_at`/`out_date`).
-- **Rule:** Admin cannot delete their own account.
-- **Audit:** Log `user_deleted`.
+**User Journey**
+1. From the user list or detail page, I click **View** → the user detail page opens.
+2. I click the **Activity Logs** tab.
+3. I see a timeline (or table) of audit entries, newest first:
 
-**Frontend:**
-- Delete button with confirmation modal: "This action cannot be undone."
+   ```
+   ◉  2025-05-22 14:08  ·  Updated team "Frontend Guild"
+       Changed: description, manager_id
+       IP: 14.224.8.12
+       [ View diff ]
 
----
+   ◉  2025-05-22 09:31  ·  Logged in
+       IP: 14.224.8.12 · Chrome on macOS
 
-## USM-05 · Create User Account
+   ◉  2025-05-21 17:55  ·  Created skill assessment for user "Binh Tran"
+       [ View diff ]
+   ```
 
-**Roles:** `ADMIN`
+4. Each entry shows: **timestamp · action label · short context · IP**.
+5. Clicking **View diff** expands an inline panel with a side-by-side or unified diff of `old_data` → `new_data` (JSON pretty-printed, changed fields highlighted).
+6. Top filters: **Date range**, **Action type**, **Entity type**.
+7. Pagination default 20 / page, with optional infinite scroll.
 
-**Backend:**
-- `POST /api/admin/users`
-- **Request body:** `{ email: string, full_name: string, role: "ADMIN"|"MANAGER"|"USER", position_id?: number, team_id?: number }`
-- **Logic:**
-  1. Validate email uniqueness.
-  2. Generate random password (min 10 chars, mixed case + number + special char).
-  3. Set `must_change_password = true`, `status = ACTIVE`.
-  4. Send `ACCOUNT_CREATED` email with temporary credentials.
-- **Audit:** Log `user_created`.
-- **Response:** Created `User` object (without password).
-
-**Frontend:**
-- Page: `/admin/users/create` or slide-over form.
-- Fields: Full Name, Email, Role (dropdown), Position (dropdown), Team (optional dropdown).
-- Show success toast with note "Credentials sent to user's email."
-
----
-
----
+**UX Expectations**
+- Empty state: *"This user has no recorded activity yet."*
+- Sensitive fields in diffs (e.g., `password_hash`, `reset_token`) are auto-masked as `••••••`.
+- Each entry is expandable but the page never blocks while expanding (lazy-load diff data only when opened).
+- A subtle **Export CSV** button is available for compliance/audit handoff.
+- Read-only — there is no edit/delete on this view ever (audit integrity).
+- Timestamps render in the admin's local TZ but a tooltip shows the original UTC.
 
 ---
 
-## Database Schema Summary
+### USM-03 · Lock / Unlock Account
 
-> All tables include `created_at`, `updated_at`. Soft-deletable tables include `deleted_at`.
+**As an** Admin
+**I want to** temporarily disable a user's ability to log in
+**So that** I can respond to security incidents, departures, or HR holds without permanently deleting the account.
 
-| Table | Key Fields |
+**User Journey**
+
+*Locking an account:*
+1. From the user list `⋯` menu **or** the user detail page header, I click **Lock account**.
+2. A confirmation dialog appears:
+   - Title: *"Lock {Full Name}?"*
+   - Body: *"This user will be signed out immediately and unable to log in until unlocked. Their data and history are preserved."*
+   - Buttons: **Cancel** (default) / **Lock account** (amber).
+3. I confirm → toast *"{Name}'s account locked."* → status badge in the list flips to 🟡 **LOCKED**.
+4. If the user is currently online, their next request returns `401` and they're redirected to `/login` with the message *"Account is locked. Contact administrator."*
+
+*Unlocking:*
+1. The same `⋯` menu now shows **Unlock account** for any LOCKED user.
+2. I click it → no confirmation needed (it's a low-risk, reversible action) → toast *"{Name}'s account unlocked."*
+
+**UX Expectations**
+- **Self-lock is forbidden.** The Lock option is hidden (or disabled with a tooltip *"You can't lock your own account."*) when viewing my own row.
+- The user's session is invalidated server-side immediately upon lock.
+- Bulk lock is **not** supported in v1 — only single-row operations.
+- The action is audit-logged as `user_locked` / `user_unlocked` with my admin id and reason (optional reason field is OK to add in v1.1).
+- A locked user still appears in lists, search results, team membership, and audit logs — they're disabled, not hidden.
+
+---
+
+### USM-04 · Delete Account (Soft Delete)
+
+**As an** Admin
+**I want to** remove a user from active rosters when they leave the organization
+**So that** they no longer appear in teams or projects while their historical data is preserved for audit.
+
+**User Journey**
+1. From the user list `⋯` menu or detail page, I click **Delete account**.
+2. A two-step confirmation appears:
+   - **Step 1 — Warning:**
+     - Title: *"Delete {Full Name}?"*
+     - Body: *"This will sign the user out, remove them from {N} team(s) and {M} project(s), and hide them from active lists. Their assessments, history, and audit logs are kept. An admin can restore this account within 30 days."*
+     - Buttons: **Cancel** / **Continue**.
+   - **Step 2 — Type-to-confirm:**
+     - *"To confirm, type the user's email below:"*
+     - An input that must match the user's email exactly to enable the red **Delete account** button.
+3. I confirm → toast *"{Name}'s account deleted."* → row fades to grey (or disappears, depending on current filter).
+
+**UX Expectations**
+- **Self-delete is forbidden.** Delete is hidden/disabled when viewing my own row.
+- The action is **soft**: `status = DELETED`, `deleted_at = now()`. The row remains in the DB.
+- The user's `TeamMember.left_at` and `ProjectMember.out_date` are set automatically (no manual cleanup).
+- Active sessions for the deleted user are killed immediately.
+- A deleted user is restored from `/admin/users?status=DELETED` via a **Restore** action (within 30 days).
+- After 30 days, an admin can choose to purge the user (this is a separate Admin feature, out of v1 scope, but the door is left open).
+- All deletion attempts are audit-logged regardless of outcome (succeeded, cancelled, denied).
+
+---
+
+### USM-05 · Create User Account
+
+**As an** Admin
+**I want to** onboard a new employee into Skill Matrix in under a minute
+**So that** they can log in and start using the system the same day.
+
+**User Journey**
+1. From `/admin/users`, I click **+ New user** (top-right).
+2. A slide-over (or full page `/admin/users/create`) opens with the form:
+   - **Full name** (required, 2–100 chars)
+   - **Email** (required, must be unique; live duplicate-check shows a green check or *"This email is already used by another account."*)
+   - **Role** (required, dropdown: `USER` (default) / `MANAGER` / `ADMIN`)
+   - **Position** (optional dropdown, searchable)
+   - **Team** (optional dropdown, searchable)
+3. Below the form, a help block reads:
+   *"A temporary password will be generated and emailed to the user. They will be required to set a new password on first login."*
+4. I click **Create**.
+5. The button shows a spinner. On success:
+   - Slide-over closes.
+   - Toast: *"Account created. Credentials sent to {email}."*
+   - The new user appears at the top of the list with status 🟢 ACTIVE.
+6. The new user receives an email (`ACCOUNT_CREATED` template) containing:
+   - Their email (login id)
+   - A temporary password (10+ chars, mixed-case + number + symbol)
+   - A login link
+   - A note that they must change the password on first login.
+
+**UX Expectations**
+- Email validation is RFC-compliant and trimmed of whitespace.
+- Duplicate email returns inline error (`409`) without losing the rest of the form.
+- If the SMTP send fails after the account is created, the toast warns: *"Account created, but the credential email could not be sent. **Resend email**."*
+- The form has both **Create** and **Create & add another** so admins onboarding multiple users don't have to reopen the form repeatedly.
+- The temporary password is **never displayed** in the admin UI (only emailed) to avoid accidental shoulder-surfing.
+- Pre-creation: if the admin selects a Team, the dropdown shows the team's current manager so the admin understands chain of command.
+- Audit-logged as `user_created` with the creating admin's id, the new user's id, and the role assigned.
+
+---
+
+### Cross-Cutting UX Principles for USM
+
+| Principle | What it looks like |
 |---|---|
-| `users` | `id`, `email`, `password_hash`, `full_name`, `phone`, `avatar_url`, `role: ENUM(ADMIN,MANAGER,USER)`, `position_id`, `status: ENUM(ACTIVE,LOCKED,DELETED)`, `must_change_password`, `deleted_at` |
-| `careers` | `id`, `name`, `description`, `deleted_at` |
-| `departments` | `id`, `name`, `description`, `career_id`, `deleted_at` |
-| `skillsets` | `id`, `name`, `description`, `department_id`, `level_descriptions: JSONB`, `deleted_at` |
-| `positions` | `id`, `name`, `required_skills: JSONB([{skillset_id, min_level}])` |
-| `teams` | `id`, `name`, `description`, `manager_id`, `deleted_at` |
-| `team_members` | `id`, `team_id`, `user_id`, `position_id`, `join_date`, `left_at` |
-| `member_notes` | `id`, `team_id`, `user_id`, `manager_id`, `content`, `created_at` |
-| `projects` | `id`, `name`, `description`, `customer`, `start_date`, `end_date`, `status: ENUM(PLANNING,ACTIVE,CLOSED,ARCHIVED)`, `created_by`, `deleted_at` |
-| `project_skill_requirements` | `id`, `project_id`, `skillset_id`, `min_level` |
-| `project_members` | `id`, `project_id`, `user_id`, `project_role`, `join_date`, `out_date`, `ai_matched` |
-| `skill_assessments` | `id`, `user_id`, `skillset_id`, `self_score`, `self_note`, `manager_score`, `manager_note`, `assessed_by`, `assessed_at`, `assessment_ai_log: JSONB`, `evidence_ref: text?` |
-| `assessment_logs` | `id`, `assessment_id`, `changed_by`, `old_self_score`, `new_self_score`, `old_manager_score`, `new_manager_score`, `changed_at` |
-| `development_goals` | `id`, `user_id`, `skillset_id`, `target_level`, `current_level`, `note`, `suggested_by`, `status: ENUM(IN_PROGRESS,COMPLETED,CANCELLED)`, `completed_at` |
-| `documents` | `id`, `title`, `description`, `type: ENUM(PDF,LINK,VIDEO)`, `url`, `file_path`, `skillset_tags: int[]`, `ai_tag_suggestions: JSONB`, `created_by`, `deleted_at` |
-| `document_assignments` | `id`, `document_id`, `user_id`, `assigned_by`, `deadline`, `status: ENUM(NOT_STARTED,IN_PROGRESS,COMPLETED,CANCELLED)`, `assigned_at`, `completed_at` |
-| `notifications` | `id`, `recipient_id`, `type`, `title`, `body`, `related_entity_type`, `related_entity_id`, `is_read` |
-| `audit_logs` | `id`, `actor_id`, `action`, `entity_type`, `entity_id`, `old_data: JSONB`, `new_data: JSONB`, `ip_address`, `user_agent` |
-| `email_templates` | `id`, `name`, `subject`, `body_html`, `trigger_event`, `is_active` |
-| `rating_scale` | `id`, `level: int(1-5)`, `label`, `description` |
-| `ai_learning_paths` | `id`, `user_id`, `generated_at`, `steps: JSONB` |
-| `ai_jd_analyses` | `id`, `created_by`, `project_id?`, `raw_input: text`, `input_type: ENUM(PDF,TEXT)`, `extracted_skills: JSONB`, `suggested_positions: JSONB`, `employee_matches: JSONB`, `resource_gaps: JSONB`, `ai_summary: text`, `generated_at` |
-| `ai_chat_sessions` | `id`, `user_id`, `session_type: ENUM(MANAGER_INTEL,ASSESSMENT_ASSIST)`, `context: JSONB`, `messages: JSONB([{role,content,timestamp}])`, `deleted_at`, `created_at`, `updated_at` |
-| `ai_chat_feedback` | `id`, `session_id`, `message_index: int`, `feedback_type: ENUM(LIKE,REPORT)`, `report_reason: ENUM(INCORRECT,IRRELEVANT,OTHER)?`, `report_detail: text?`, `created_by`, `created_at` |
-| `ai_certifications` | `id`, `user_id`, `file_path?`, `raw_text: text`, `cert_name`, `issuer`, `issue_date?`, `expiry_date?`, `extracted_skillsets: JSONB([{skillset_id,suggested_level,reasoning}])`, `status: ENUM(PENDING,ACCEPTED,REJECTED)`, `created_at` |
-| `ai_team_formations` | `id`, `project_id`, `requested_by`, `team_size`, `configurations: JSONB([{members,coverage_score,skill_gaps_remaining,rationale}])`, `selected_config_index?`, `generated_at` |
-| `ai_benchmark_reports` | `id`, `requested_by`, `scope_type: ENUM(USER,TEAM)`, `scope_id: int`, `position_benchmarked: text`, `market_context: text`, `overall_verdict: text`, `hiring_recommendation: text`, `results: JSONB`, `previous_report_id?`, `generated_at` |
-| `ai_assessment_reviews` | `id`, `assessment_id`, `triggered_by`, `trigger_source: ENUM(MANUAL,AUTO)`, `issues: JSONB([{type,severity,description,affected_skillsets,suggested_action,dismissed,dismissed_reason}])`, `overall_quality: ENUM(GOOD,WARNING,FLAGGED)`, `generated_at` |
+| **Admin-only surface** | Every USM route is gated by `ADMIN`; non-admins reaching these URLs see a friendly 403 page with a link to their dashboard. |
+| **No self-foot-guns** | Lock and Delete are hidden/disabled on the admin's own row — server enforces this too. |
+| **Soft over hard** | Delete is reversible for 30 days. Lock is freely reversible at any time. |
+| **Diff-based audit** | Activity Logs always show *what changed*, not just *that something changed*. Diffs are inline-expandable. |
+| **Sensitive masking** | `password_hash`, reset tokens, and other secrets are automatically redacted in any UI that shows audit data. |
+| **Confirmation matches risk** | Lock = simple confirm. Delete = two-step + type-to-confirm. Restore/Unlock = no dialog. |
+| **Live duplicate-checking** | Email uniqueness is checked as the admin types, not only on submit. |
+| **No credential leakage** | Temporary passwords are emailed, never shown in the admin UI; resend is one click if delivery failed. |
+| **URL-encoded filters** | The list view's filter and search state is reflected in the URL, so admins can bookmark and share specific views. |
+| **Localized & TZ-aware** | All timestamps render in the admin's local timezone with a UTC tooltip for forensic precision. |
 
 ---
-
-## API Conventions
-
-- **Base path:** `/api/`
-- **Auth header:** `Authorization: Bearer <access_token>`
-- **Error response format:** `{ error: string, message: string, field_errors?: { [field]: string } }`
-- **Success list format:** `{ data: [], total: int, page: int, page_size: int }`
-- **HTTP status codes:** `200` OK, `201` Created, `400` Validation error, `401` Unauthenticated, `403` Forbidden, `404` Not found, `409` Conflict (duplicate), `422` Business rule violation, `503` AI service unavailable.
-
----
-
-*End of Feature List — generated from WBS_v1.xlsx + SYSTEM_FEATURES.md + AI feature suggestions*
-
-*Feature file: USM-01 — extracted from FEATURE_LIST.md*

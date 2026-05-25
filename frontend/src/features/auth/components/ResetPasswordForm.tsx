@@ -9,6 +9,7 @@ import {
   type ResetPasswordFormValues,
 } from '@/features/auth/schemas/password.schema'
 import { useResetPassword } from '@/features/auth/hooks/useAuthMutations'
+import { PasswordPolicyChecklist } from '@/features/auth/components/PasswordPolicyChecklist'
 
 export function ResetPasswordForm() {
   const router = useRouter()
@@ -17,10 +18,13 @@ export function ResetPasswordForm() {
   const [serverError, setServerError] = useState<string | null>(null)
   const reset = useResetPassword()
 
-  const { register, handleSubmit, formState } = useForm<ResetPasswordFormValues>({
+  const { register, handleSubmit, formState, watch } = useForm<ResetPasswordFormValues>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: { token: tokenFromQuery, newPassword: '', confirmPassword: '' },
+    mode: 'onChange',
   })
+
+  const newPasswordValue = watch('newPassword')
 
   async function onSubmit(values: ResetPasswordFormValues) {
     setServerError(null)
@@ -50,6 +54,7 @@ export function ResetPasswordForm() {
             {formState.errors.newPassword.message}
           </p>
         )}
+        <PasswordPolicyChecklist value={newPasswordValue ?? ''} />
       </div>
 
       <div>

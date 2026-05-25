@@ -46,131 +46,273 @@
 
 ---
 
-# TEM · Team Management
+---
+
+## User Cases & User Experience
+
+> Companion to the technical contracts above. Each TEM sub-feature is restated as a user story plus the expected user journey and UX behavior.
 
 ---
 
-## TEM-01 · Team CRUD
+### TEM-01 · Team CRUD
 
-**Roles:** CREATE: `ADMIN`, `MANAGER`; UPDATE/DELETE: `ADMIN`, `MANAGER` (own team only)
+#### User Story A — Admin: Create a Team
 
-**Backend:**
-- `GET /api/teams` — list; supports `search`, `page`, `page_size`. ADMIN sees all; MANAGER sees own.
-- `POST /api/teams` — `{ name, description, manager_id }`
-- `GET /api/teams/:id`
-- `PUT /api/teams/:id` — `{ name, description, manager_id }`
-- `DELETE /api/teams/:id` — soft delete.
-- **Rule:** Team details/members can only be edited by the assigned manager or ADMIN.
-- **Audit:** Log create/update/delete.
+**As an** Admin
+**I want to** create a new team and assign a manager
+**So that** the organization can group employees under a responsible lead.
 
-**DB Entity:** `Team { id, name, description, manager_id → User, created_at, updated_at, deleted_at }`
+**User Journey**
+1. I open `/admin/teams` and see a list of all existing teams as cards, each showing **team name**, **manager**, and **member count**.
+2. I click the **+ New team** button (top-right).
+3. A side-drawer (or modal) opens with:
+   - **Team name** (required)
+   - **Description** (optional, multi-line)
+   - **Manager** (searchable dropdown of users with role MANAGER)
+4. I fill the form and click **Create**.
+5. On success → drawer closes, the new team card appears at the top of the list with a brief highlight animation, and a toast says *"Team created."*
 
-**Frontend:**
-- Page: `/admin/teams` (ADMIN) or `/manager/team` (MANAGER).
-- Team card with member count, manager name.
-
----
-
-## TEM-02 · Manage Team Members
-
-**Roles:** `ADMIN`, `MANAGER` (own team only)
-
-**Backend:**
-- `POST /api/teams/:id/members` — `{ user_id, position_id? }` — add member. If user is in another team, set `left_at` on previous `TeamMember`.
-- `DELETE /api/teams/:id/members/:user_id` — remove member (set `left_at`).
-- `PATCH /api/teams/:id/members/:user_id/position` — `{ position_id }` — update job position.
-- `GET /api/teams/:id/members` — list members: `{ user_id, full_name, avatar_url, position_name, join_date, status }`.
-- **Business rule:** A user belongs to at most one team at a time.
-- **Audit:** Log `team_member_add`, `team_member_remove`, `team_member_position_change`.
-
-**DB Entity:** `TeamMember { id, team_id, user_id, position_id?, join_date, left_at? }`
-
-**Frontend:**
-- Team detail page: member list table with add/remove actions.
-- Position dropdown per member. Default position label: "Member".
+**UX Expectations**
+- Team name must be unique within the org — duplicate triggers an inline error: *"A team with this name already exists."*
+- Manager dropdown shows the user's avatar + name + current team (if any) so I know if I'm reassigning them.
+- If the chosen manager is already managing another team, a soft warning under the field: *"This user already manages 'Team X'. They can manage multiple teams if needed."*
 
 ---
 
-## TEM-03 · View & Note on Member
+#### User Story B — Manager: View My Team
 
-**Roles:** `MANAGER` (own team), `ADMIN`
+**As a** Manager
+**I want to** quickly find the team I lead
+**So that** I can manage it without scrolling through unrelated teams.
 
-**Backend:**
-- `GET /api/teams/:id/members/:user_id` — detailed member view: profile + assessments + goals + assigned documents.
-- `POST /api/teams/:id/members/:user_id/notes` — `{ content: string }` — add a private note.
-- `GET /api/teams/:id/members/:user_id/notes` — list notes by manager.
+**User Journey**
+1. I log in and click **My Team** in the sidebar (or land on `/manager/team`).
+2. If I manage exactly one team, I'm taken directly to its detail page.
+3. If I manage multiple teams, I see a compact list of just my teams — no admin clutter.
+4. If I'm assigned no team, I see an empty state: *"You don't manage any team yet. Contact your administrator."*
 
-**DB Entity:** `MemberNote { id, team_id, user_id, manager_id, content, created_at }`
-
-**Frontend:**
-- Member detail slide-over/page: tabs for Profile, Skills, Goals, Documents, Notes.
-
----
-
-## TEM-04 · View Member Change Logs
-
-**Roles:** `MANAGER` (own team), `ADMIN`
-
-**Backend:**
-- `GET /api/teams/:id/members/:user_id/logs`
-- **Response:** `AuditLog` entries related to this user within team context.
-
-**Frontend:**
-- Member detail page: "Change Log" tab showing historical changes.
+**UX Expectations**
+- The header always reads *"My Team — {Team Name}"* for clarity.
+- Manager never sees teams they don't manage in this view, even by URL guessing — backend enforces scope.
 
 ---
 
----
+#### User Story C — Update a Team
+
+**As an** Admin **or** the assigned Manager
+**I want to** rename my team or update its description
+**So that** the team information stays accurate as the org evolves.
+
+**User Journey**
+1. From the team detail page, I click the **⋯** menu → **Edit team**.
+2. The same drawer used for create opens, pre-filled.
+3. Manager-role users cannot change `manager_id` (the field is read-only with a tooltip: *"Only an admin can reassign the manager."*).
+4. I edit name/description → **Save** → toast *"Team updated."*
+
+**UX Expectations**
+- Optimistic update — the card header changes immediately while the request is in flight.
+- If another admin updates the same team concurrently, I get a conflict toast: *"Team was updated by someone else. Please refresh."*
 
 ---
 
-## Database Schema Summary
+#### User Story D — Delete a Team
 
-> All tables include `created_at`, `updated_at`. Soft-deletable tables include `deleted_at`.
+**As an** Admin
+**I want to** delete a team that no longer exists in the org
+**So that** the team list reflects reality.
 
-| Table | Key Fields |
+**User Journey**
+1. From the team detail page or list card, I click **⋯** → **Delete team**.
+2. A confirmation dialog appears:
+   - Title: *"Delete '{Team Name}'?"*
+   - Body: *"This team has {N} members. They will be unassigned. This action is reversible by an admin within 30 days."*
+   - Buttons: **Cancel** (default) / **Delete** (red).
+3. I confirm → toast *"Team deleted."* → list refreshes without the deleted team.
+
+**UX Expectations**
+- Soft delete: the team is hidden from all lists but can be restored from `/admin/teams?show=deleted`.
+- All existing members get `left_at` set; their personal profile shows *"No team"* afterwards.
+- Manager never sees a Delete button — only admin.
+
+---
+
+### TEM-02 · Manage Team Members
+
+#### User Story A — Add a Member
+
+**As a** Manager (own team) **or** Admin
+**I want to** add an employee to my team
+**So that** they appear in my team's member list and can be assessed.
+
+**User Journey**
+1. On the team detail page, I click **+ Add member**.
+2. A modal opens with:
+   - **User** — searchable dropdown showing avatar, name, current team, position.
+   - **Position** (optional) — dropdown of organizational positions; default placeholder *"Member"*.
+3. I select a user. If they already belong to another team, the modal shows a yellow banner:
+   *"This user is currently on 'Team X'. Adding them here will remove them from that team."*
+4. I click **Add** → toast *"{Name} added to the team."*
+
+**UX Expectations**
+- Search supports name + email; results highlight matched substring.
+- The dropdown excludes users already on this team and users marked DELETED.
+- The previous team's member list updates in real-time (or on next refresh) — that user now shows as left.
+
+---
+
+#### User Story B — Remove a Member
+
+**As a** Manager (own team) **or** Admin
+**I want to** remove a member who no longer belongs on the team
+**So that** the roster stays accurate.
+
+**User Journey**
+1. In the member table, I hover over a member's row → a **⋯** icon appears at the end.
+2. I click **⋯** → **Remove from team**.
+3. A confirmation dialog: *"Remove {Name} from {Team Name}? Their history stays, but they will no longer appear in the roster."*
+4. I confirm → row fades out → toast *"{Name} removed."*
+
+**UX Expectations**
+- "Remove" is a soft action — `left_at` is set, history is preserved for audit/reports.
+- The user's profile/skill history is not deleted.
+- I cannot remove myself if I am the team's manager (the option is hidden or disabled with a tooltip).
+
+---
+
+#### User Story C — Change a Member's Position
+
+**As a** Manager (own team) **or** Admin
+**I want to** update a member's job position
+**So that** assessments are matched to the right required skills.
+
+**User Journey**
+1. In the member table, I click the **Position** cell for the member.
+2. It turns into an inline dropdown listing all positions.
+3. I pick a new position → it saves immediately (inline edit), accompanied by a subtle *"Saved"* indicator on the cell.
+
+**UX Expectations**
+- Loading state on the cell while saving (small spinner replaces value briefly).
+- If save fails, the cell reverts and shows an inline error tooltip.
+- The change is audit-logged with old → new position.
+
+---
+
+#### User Story D — Browse Team Members
+
+**As a** Manager **or** Admin
+**I want to** see all members of a team at a glance
+**So that** I can plan workload, assessments, and 1:1s.
+
+**User Journey**
+1. The team detail page shows a members table:
+
+   | Avatar | Name | Position | Joined | Status | ⋯ |
+   |---|---|---|---|---|---|
+   | 🟢 | An Nguyen | Senior Dev | 2024-01-15 | Active | ⋯ |
+   | 🟡 | Binh Tran | Member | 2025-03-02 | New | ⋯ |
+
+2. The table supports pagination (default 20 / page), search, and sort by name / join date.
+3. Clicking a row navigates to **TEM-03** (member detail).
+
+**UX Expectations**
+- Empty state with a CTA: *"This team has no members yet. **+ Add the first member**."*
+- Status chip shows ACTIVE / LOCKED / DELETED, color-coded.
+
+---
+
+### TEM-03 · View & Note on Member
+
+#### User Story A — View Member Detail
+
+**As a** Manager (own team) **or** Admin
+**I want to** see everything relevant about a team member in one place
+**So that** I can prepare for 1:1s and performance discussions.
+
+**User Journey**
+1. From the member table, I click a row → a slide-over (right-side panel) opens.
+2. The slide-over has tabs: **Profile · Skills · Goals · Documents · Notes · Change Log**.
+3. **Profile** tab shows: avatar, name, email (visible to manager), phone, position, join date, status.
+4. **Skills** tab shows: list of skillsets with self-score + manager-score side by side.
+5. **Goals** tab shows: development goals with status (IN_PROGRESS / COMPLETED / CANCELLED).
+6. **Documents** tab shows: assigned learning documents with completion status.
+7. **Notes** tab shows: private notes (described below).
+8. **Change Log** tab is described in **TEM-04**.
+
+**UX Expectations**
+- The slide-over is wide (≥640 px) to comfortably display tables.
+- I can close it with **Esc**, the X button, or by clicking the backdrop.
+- Tab state persists if I navigate away and come back within the session.
+
+---
+
+#### User Story B — Add a Private Note
+
+**As a** Manager
+**I want to** record private observations about my team member
+**So that** I have context for future reviews without the member seeing it.
+
+**User Journey**
+1. On the **Notes** tab, I see a chronological list of my previous notes (newest first).
+2. At the top is a text-area placeholder: *"Add a private note about this member…"*
+3. I type, then click **Save note**.
+4. The new note appears at the top with my name, avatar, and timestamp.
+
+**UX Expectations**
+- Notes are explicitly labeled *"Visible to managers and admins only — never shown to the member."* under the input.
+- The member cannot see this tab and the API blocks attempts to read others' notes.
+- Notes are append-only in v1: no edit or delete (audit-friendly). If needed, this is documented to managers.
+- A note must be 1–2000 characters; the counter shows live.
+
+---
+
+### TEM-04 · View Member Change Logs
+
+**As a** Manager (own team) **or** Admin
+**I want to** see what has changed for a member over time
+**So that** I can investigate disputes, prepare audits, and understand a member's trajectory.
+
+**User Journey**
+1. From the member slide-over, I click the **Change Log** tab.
+2. I see a reverse-chronological timeline of events:
+
+   ```
+   ◉  2025-05-10 14:22  · An Nguyen
+       Position changed from "Member" → "Senior Dev"
+       Actor: Tran Linh (Manager)
+
+   ◉  2025-03-02 09:10  · An Nguyen
+       Joined team "Frontend Guild"
+       Actor: Tran Linh (Manager)
+
+   ◉  2025-02-28 16:45  · An Nguyen
+       Skill "React" — Manager score updated 3 → 4
+       Actor: Tran Linh (Manager)
+   ```
+
+3. Each event row shows: timestamp, action label, actor, and (where useful) a *"View details"* link to see the old → new diff.
+4. Top filters: **Date range**, **Action type** (Member add/remove, Position change, Skill score change, Note added), **Actor**.
+
+**UX Expectations**
+- Pagination default 20 / page, infinite scroll preferred for timelines.
+- Empty state: *"No changes recorded yet."*
+- For high-noise events (e.g., bulk imports), the timeline can collapse into a single grouped entry: *"45 changes from CSV import — view details."*
+- All entries are read-only; this view never offers edit or delete actions.
+
+---
+
+### Cross-Cutting UX Principles for TEM
+
+| Principle | What it looks like |
 |---|---|
-| `users` | `id`, `email`, `password_hash`, `full_name`, `phone`, `avatar_url`, `role: ENUM(ADMIN,MANAGER,USER)`, `position_id`, `status: ENUM(ACTIVE,LOCKED,DELETED)`, `must_change_password`, `deleted_at` |
-| `careers` | `id`, `name`, `description`, `deleted_at` |
-| `departments` | `id`, `name`, `description`, `career_id`, `deleted_at` |
-| `skillsets` | `id`, `name`, `description`, `department_id`, `level_descriptions: JSONB`, `deleted_at` |
-| `positions` | `id`, `name`, `required_skills: JSONB([{skillset_id, min_level}])` |
-| `teams` | `id`, `name`, `description`, `manager_id`, `deleted_at` |
-| `team_members` | `id`, `team_id`, `user_id`, `position_id`, `join_date`, `left_at` |
-| `member_notes` | `id`, `team_id`, `user_id`, `manager_id`, `content`, `created_at` |
-| `projects` | `id`, `name`, `description`, `customer`, `start_date`, `end_date`, `status: ENUM(PLANNING,ACTIVE,CLOSED,ARCHIVED)`, `created_by`, `deleted_at` |
-| `project_skill_requirements` | `id`, `project_id`, `skillset_id`, `min_level` |
-| `project_members` | `id`, `project_id`, `user_id`, `project_role`, `join_date`, `out_date`, `ai_matched` |
-| `skill_assessments` | `id`, `user_id`, `skillset_id`, `self_score`, `self_note`, `manager_score`, `manager_note`, `assessed_by`, `assessed_at`, `assessment_ai_log: JSONB`, `evidence_ref: text?` |
-| `assessment_logs` | `id`, `assessment_id`, `changed_by`, `old_self_score`, `new_self_score`, `old_manager_score`, `new_manager_score`, `changed_at` |
-| `development_goals` | `id`, `user_id`, `skillset_id`, `target_level`, `current_level`, `note`, `suggested_by`, `status: ENUM(IN_PROGRESS,COMPLETED,CANCELLED)`, `completed_at` |
-| `documents` | `id`, `title`, `description`, `type: ENUM(PDF,LINK,VIDEO)`, `url`, `file_path`, `skillset_tags: int[]`, `ai_tag_suggestions: JSONB`, `created_by`, `deleted_at` |
-| `document_assignments` | `id`, `document_id`, `user_id`, `assigned_by`, `deadline`, `status: ENUM(NOT_STARTED,IN_PROGRESS,COMPLETED,CANCELLED)`, `assigned_at`, `completed_at` |
-| `notifications` | `id`, `recipient_id`, `type`, `title`, `body`, `related_entity_type`, `related_entity_id`, `is_read` |
-| `audit_logs` | `id`, `actor_id`, `action`, `entity_type`, `entity_id`, `old_data: JSONB`, `new_data: JSONB`, `ip_address`, `user_agent` |
-| `email_templates` | `id`, `name`, `subject`, `body_html`, `trigger_event`, `is_active` |
-| `rating_scale` | `id`, `level: int(1-5)`, `label`, `description` |
-| `ai_learning_paths` | `id`, `user_id`, `generated_at`, `steps: JSONB` |
-| `ai_jd_analyses` | `id`, `created_by`, `project_id?`, `raw_input: text`, `input_type: ENUM(PDF,TEXT)`, `extracted_skills: JSONB`, `suggested_positions: JSONB`, `employee_matches: JSONB`, `resource_gaps: JSONB`, `ai_summary: text`, `generated_at` |
-| `ai_chat_sessions` | `id`, `user_id`, `session_type: ENUM(MANAGER_INTEL,ASSESSMENT_ASSIST)`, `context: JSONB`, `messages: JSONB([{role,content,timestamp}])`, `deleted_at`, `created_at`, `updated_at` |
-| `ai_chat_feedback` | `id`, `session_id`, `message_index: int`, `feedback_type: ENUM(LIKE,REPORT)`, `report_reason: ENUM(INCORRECT,IRRELEVANT,OTHER)?`, `report_detail: text?`, `created_by`, `created_at` |
-| `ai_certifications` | `id`, `user_id`, `file_path?`, `raw_text: text`, `cert_name`, `issuer`, `issue_date?`, `expiry_date?`, `extracted_skillsets: JSONB([{skillset_id,suggested_level,reasoning}])`, `status: ENUM(PENDING,ACCEPTED,REJECTED)`, `created_at` |
-| `ai_team_formations` | `id`, `project_id`, `requested_by`, `team_size`, `configurations: JSONB([{members,coverage_score,skill_gaps_remaining,rationale}])`, `selected_config_index?`, `generated_at` |
-| `ai_benchmark_reports` | `id`, `requested_by`, `scope_type: ENUM(USER,TEAM)`, `scope_id: int`, `position_benchmarked: text`, `market_context: text`, `overall_verdict: text`, `hiring_recommendation: text`, `results: JSONB`, `previous_report_id?`, `generated_at` |
-| `ai_assessment_reviews` | `id`, `assessment_id`, `triggered_by`, `trigger_source: ENUM(MANUAL,AUTO)`, `issues: JSONB([{type,severity,description,affected_skillsets,suggested_action,dismissed,dismissed_reason}])`, `overall_quality: ENUM(GOOD,WARNING,FLAGGED)`, `generated_at` |
+| **Scope discipline** | A Manager never sees teams or members outside their own — no leaks via URL, search, or autocomplete. |
+| **Soft over hard** | Delete team and remove member are soft operations; recoverable for 30 days by Admin. |
+| **Single-team invariant** | When adding a member who's on another team, the UI surfaces the conflict and explains the auto-move before the action is confirmed. |
+| **Inline editing where safe** | Position is inline-edited; team rename uses a drawer to allow rich edits and validation. |
+| **Audit-friendly notes** | Manager notes are append-only and clearly labeled as private; the member never has read access. |
+| **Always reversible at admin level** | Every destructive action shows what happens and offers a path to restore. |
+| **Forced empty states** | Every list (teams, members, notes, change log) has a clear empty state with a CTA where appropriate. |
+| **Real-time consistency** | Adding a member to my team also reflects in the previous team's roster without manual refresh. |
+| **Keyboard-first** | Drawers and modals close on **Esc**, action menus open with **Enter**, tables support **Tab** navigation. |
+| **Localized & tz-aware** | All timestamps render in the viewer's local timezone; labels respect the user's language (vi / en). |
 
 ---
-
-## API Conventions
-
-- **Base path:** `/api/`
-- **Auth header:** `Authorization: Bearer <access_token>`
-- **Error response format:** `{ error: string, message: string, field_errors?: { [field]: string } }`
-- **Success list format:** `{ data: [], total: int, page: int, page_size: int }`
-- **HTTP status codes:** `200` OK, `201` Created, `400` Validation error, `401` Unauthenticated, `403` Forbidden, `404` Not found, `409` Conflict (duplicate), `422` Business rule violation, `503` AI service unavailable.
-
----
-
-*End of Feature List — generated from WBS_v1.xlsx + SYSTEM_FEATURES.md + AI feature suggestions*
-
-*Feature file: TEM-01 — extracted from FEATURE_LIST.md*

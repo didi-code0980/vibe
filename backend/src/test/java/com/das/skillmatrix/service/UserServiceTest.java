@@ -62,6 +62,8 @@ class UserServiceTest {
     private PermissionService permissionService;
     @Mock
     private BusinessChangeLogService logService;
+    @Mock
+    private EmailService emailService;
 
     @InjectMocks
     private UserService userService;
@@ -121,6 +123,7 @@ class UserServiceTest {
     private CreateUserRequest createReq(String email, String role, List<Long> positionIds) {
         CreateUserRequest r = new CreateUserRequest();
         r.setEmail(email);
+        r.setFullName("Test " + email);
         r.setRole(role);
         r.setPositionIds(positionIds);
         return r;

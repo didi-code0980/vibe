@@ -1,4 +1,4 @@
-import { apiClient } from '@/lib/api/client'
+import { apiClient, ApiError } from '@/lib/api/client'
 import { ENDPOINTS } from '@/lib/api/endpoints'
 import { ROLES } from '@/lib/constants/roles'
 import type { Role } from '@/lib/constants/roles'
@@ -35,6 +35,18 @@ export function getRoleFromCookie(): Role | null {
   const raw = match ? decodeURIComponent(match[1]) : null
   if (raw === ROLES.ADMIN || raw === ROLES.MANAGER || raw === ROLES.USER) return raw
   return null
+}
+
+export type ChangePasswordErrorCode = 'WRONG_CURRENT_PASSWORD' | 'UNKNOWN'
+
+export class ChangePasswordError extends Error {
+  constructor(
+    public code: ChangePasswordErrorCode,
+    message: string,
+  ) {
+    super(message)
+    this.name = 'ChangePasswordError'
+  }
 }
 
 export const authService = {
@@ -78,13 +90,33 @@ export const authService = {
   },
 
   changePassword: async (payload: ChangePasswordPayload): Promise<void> => {
-    const body = await apiClient.post<ApiResponse<string>>(ENDPOINTS.AUTH.CHANGE_PASSWORD, {
-      current_password: payload.currentPassword,
-      new_password: payload.newPassword,
-    })
-    if (!body.success) {
-      throw new Error(body.error?.message ?? 'Could not change password')
+    try {
+      // skipAuthRedirect: backend returns 401 on WRONG_CURRENT_PASSWORD; we must
+      // not log the user out — they keep their session and just see a field error.
+      const body = await apiClient.post<ApiResponse<string>>(
+        ENDPOINTS.AUTH.CHANGE_PASSWORD,
+        {
+          current_password: payload.currentPassword,
+          new_password: payload.newPassword,
+        },
+        { skipAuthRedirect: true },
+      )
+      if (!body.success) {
+        throw new ChangePasswordError(
+          'UNKNOWN',
+          body.error?.message ?? 'Could not change password',
+        )
+      }
+      useAuthStore.getState().updateMustChangePassword(false)
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) {
+        throw new ChangePasswordError('WRONG_CURRENT_PASSWORD', 'Current password is incorrect.')
+      }
+      if (err instanceof ChangePasswordError) throw err
+      throw new ChangePasswordError(
+        'UNKNOWN',
+        err instanceof Error ? err.message : 'Could not change password',
+      )
     }
-    useAuthStore.getState().updateMustChangePassword(false)
   },
 }

@@ -1,8 +1,10 @@
 package com.das.skillmatrix.entity;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
@@ -59,6 +61,8 @@ public class User extends BaseEntity {
     private LocalDateTime deactiveUntil;
     private LocalDateTime deActiveAt;
 
+    private LocalDateTime deletedAt;
+
     @ManyToOne
     @JoinColumn(name = "department_id")
     private Department department;
@@ -106,4 +110,31 @@ public class User extends BaseEntity {
     @NotAudited
     @ManyToMany(mappedBy = "managers")
     private List<Team> managedTeams = new ArrayList<>();
+
+    public void softDelete(Clock clock) {
+        this.status = GeneralStatus.DELETED;
+        this.deletedAt = LocalDateTime.now(clock);
+    }
+
+    public void lock() {
+        this.status = GeneralStatus.LOCKED;
+    }
+
+    public void unlock() {
+        this.status = GeneralStatus.ACTIVE;
+    }
+
+    public boolean isSameAs(User other) {
+        return other != null
+                && this.userId != null
+                && Objects.equals(this.userId, other.userId);
+    }
+
+    public boolean isAdmin() {
+        return "ADMIN".equals(this.role);
+    }
+
+    public boolean isDeleted() {
+        return GeneralStatus.DELETED.equals(this.status);
+    }
 }

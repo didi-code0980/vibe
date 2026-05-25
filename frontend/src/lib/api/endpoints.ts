@@ -21,7 +21,11 @@ export const ENDPOINTS = {
     TEAM:               '/profile/team',
   },
 
-  // ─── General users (used by BFF / userId resolution) ────────────────────────
+  /**
+   * @deprecated Use `ENDPOINTS.ADMIN.USERS.*` instead.
+   * The legacy `/users` surface mixes manager- and admin-scope semantics; admin-only
+   * user management migrated to `/admin/users` per USM-01..05.
+   */
   USERS: {
     LIST:       '/users',
     DETAIL:     (id: Id) => `/users/${id}`,

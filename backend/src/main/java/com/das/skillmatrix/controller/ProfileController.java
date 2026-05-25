@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -62,6 +63,13 @@ public class ProfileController {
             @RequestParam("file") MultipartFile file) {
         String avatarUrl = this.profileService.uploadAvatar(authentication.getName(), file);
         return ResponseEntity.ok(new ApiResponse<>(new AvatarUploadResponse(avatarUrl), true, null));
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/avatar")
+    public ResponseEntity<ApiResponse<String>> removeAvatar(Authentication authentication) {
+        this.profileService.removeAvatar(authentication.getName());
+        return ResponseEntity.ok(new ApiResponse<>("Avatar removed.", true, null));
     }
 
     @PreAuthorize("isAuthenticated()")

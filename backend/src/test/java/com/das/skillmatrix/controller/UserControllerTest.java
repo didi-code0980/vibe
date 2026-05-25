@@ -121,6 +121,7 @@ class UserControllerTest {
     void create_shouldReturnCreatedUser() throws Exception {
         CreateUserRequest req = new CreateUserRequest();
         req.setEmail("new@test.com");
+        req.setFullName("New User");
         req.setRole("STAFF");
         req.setPositionIds(List.of(1L));
         req.setTeamId(1L);

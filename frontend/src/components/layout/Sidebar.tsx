@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { clsx } from 'clsx'
@@ -12,6 +13,7 @@ import {
 import { useAuthStore } from '@/store/auth.store'
 import { ROLES } from '@/lib/constants/roles'
 import type { Role } from '@/lib/constants/roles'
+import { useProfile } from '@/features/profile/hooks/useProfile'
 
 interface NavItem {
   href: string
@@ -114,10 +116,39 @@ const navGroups: NavGroup[] = [
   },
 ]
 
+function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .map((w) => w[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase()
+}
+
 export function Sidebar() {
   const pathname = usePathname()
   const user = useAuthStore((s) => s.user)
+  const updateUser = useAuthStore((s) => s.updateUser)
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
   const role = user?.role ?? null
+
+  const { data: profile } = useProfile()
+
+  useEffect(() => {
+    if (!profile || !user) return
+    if (profile.fullName !== user.fullName || profile.userAvatar !== user.avatarUrl) {
+      updateUser({ fullName: profile.fullName, avatarUrl: profile.userAvatar })
+    }
+  }, [profile, user, updateUser])
+
+  const displayName =
+    profile?.fullName?.trim() ||
+    user?.fullName?.trim() ||
+    user?.email ||
+    (isAuthenticated ? 'Account' : '')
+
+  const displayRole = profile?.role ?? user?.role ?? 'USER'
 
   const isVisible = (item: NavItem) =>
     !item.requiredRoles || !role || item.requiredRoles.includes(role)
@@ -164,16 +195,21 @@ export function Sidebar() {
 
       {/* User */}
       <div className="px-4 py-3.5 border-t border-white/[0.06] flex items-center gap-2.5 cursor-pointer">
-        <div className="w-8 h-8 rounded-full bg-teal-dark flex items-center justify-center text-white text-xs font-semibold shrink-0">
-          {user?.fullName
-            ? user.fullName.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase()
-            : 'TN'}
+        <div className="w-8 h-8 rounded-full bg-teal-dark flex items-center justify-center text-white text-xs font-semibold shrink-0 overflow-hidden">
+          {profile?.userAvatar || user?.avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={profile?.userAvatar ?? user?.avatarUrl ?? ''}
+              alt={displayName}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            getInitials(displayName) || '?'
+          )}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[13px] font-medium text-white/85 truncate">
-            {user?.fullName || 'Loading…'}
-          </p>
-          <p className="text-[11px] text-white/35">{user?.role ?? 'USER'}</p>
+          <p className="text-[13px] font-medium text-white/85 truncate">{displayName}</p>
+          <p className="text-[11px] text-white/35">{displayRole}</p>
         </div>
       </div>
     </aside>

@@ -12,6 +12,9 @@ public class CreateUserRequest {
     @Email(message = "Invalid email format")
     private String email;
 
+    @NotBlank(message = "Full name is required")
+    private String fullName;
+
     @NotBlank(message = "Role is required")
     private String role; // ADMIN, MANAGER_CAREER, MANAGER_DEPARTMENT, MANAGER_TEAM, STAFF
 

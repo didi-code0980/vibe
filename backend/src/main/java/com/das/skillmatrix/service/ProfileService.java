@@ -75,6 +75,17 @@ public class ProfileService {
         return newAvatarUrl;
     }
 
+    public void removeAvatar(String email) {
+        User user = this.findActiveUserByEmail(email);
+        String oldAvatar = user.getUserAvatar();
+        if (oldAvatar == null) {
+            return;
+        }
+        user.setUserAvatar(null);
+        this.userRepository.save(user);
+        this.fileStorageService.deleteAvatar(oldAvatar);
+    }
+
     @Transactional(readOnly = true)
     public ProfileSettingsResponse getSettings(String email) {
         User user = this.findActiveUserByEmail(email);

@@ -34,19 +34,60 @@ export const profileService = {
   },
 
   uploadAvatar: async (file: File): Promise<AvatarUploadResponse> => {
-    const form = new FormData()
-    form.append('file', file)
-    const token = getTokenFromCookie()
-    const res = await fetch(`/api${ENDPOINTS.PROFILE.AVATAR}`, {
-      method: 'POST',
-      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-      body: form,
+    return profileService.uploadAvatarWithProgress(file)
+  },
+
+  /**
+   * Upload an avatar and stream progress events via the optional callback.
+   * Uses XHR because `fetch` does not surface request-body progress.
+   */
+  uploadAvatarWithProgress: (
+    file: File,
+    onProgress?: (loaded: number, total: number) => void,
+    signal?: AbortSignal,
+  ): Promise<AvatarUploadResponse> => {
+    return new Promise<AvatarUploadResponse>((resolve, reject) => {
+      const form = new FormData()
+      form.append('file', file)
+      const xhr = new XMLHttpRequest()
+      xhr.open('POST', `/api${ENDPOINTS.PROFILE.AVATAR}`)
+      const token = getTokenFromCookie()
+      if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`)
+
+      xhr.upload.onprogress = (evt) => {
+        if (evt.lengthComputable && onProgress) onProgress(evt.loaded, evt.total)
+      }
+      xhr.onerror = () => reject(new Error('Network error during upload'))
+      xhr.onabort = () => reject(new DOMException('Upload aborted', 'AbortError'))
+      xhr.onload = () => {
+        let body: ApiResponse<AvatarUploadResponse> | null = null
+        try {
+          body = xhr.responseText ? (JSON.parse(xhr.responseText) as ApiResponse<AvatarUploadResponse>) : null
+        } catch {
+          body = null
+        }
+        if (xhr.status >= 200 && xhr.status < 300 && body?.success && body.data) {
+          resolve(body.data)
+        } else {
+          reject(new Error(body?.error?.message ?? `Upload failed (${xhr.status})`))
+        }
+      }
+      if (signal) {
+        if (signal.aborted) {
+          xhr.abort()
+          return
+        }
+        signal.addEventListener('abort', () => xhr.abort(), { once: true })
+      }
+      xhr.send(form)
     })
-    const data: ApiResponse<AvatarUploadResponse> = await res.json()
-    if (!res.ok || !data.success) {
-      throw new Error(data.error?.message ?? 'Failed to upload avatar')
+  },
+
+  removeAvatar: async (): Promise<void> => {
+    const body = await apiClient.delete<ApiResponse<string>>(ENDPOINTS.PROFILE.AVATAR)
+    if (!body.success) {
+      throw new Error(body.error?.message ?? 'Could not remove avatar')
     }
-    return unwrap(data)
   },
 
   getSettings: async (): Promise<ProfileSettings> => {

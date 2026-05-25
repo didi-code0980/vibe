@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Loader2 } from 'lucide-react'
 import { loginSchema, type LoginFormValues } from '@/features/auth/schemas/login.schema'
 import { useLogin } from '@/features/auth/hooks/useAuthMutations'
 
@@ -80,9 +81,11 @@ export function LoginForm() {
       <button
         type="submit"
         disabled={login.isPending}
-        className="w-full mt-5 py-2.5 rounded-btn bg-teal text-white text-[14px] font-medium hover:bg-teal-dark transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+        aria-busy={login.isPending}
+        className="w-full mt-5 py-2.5 rounded-btn bg-teal text-white text-[14px] font-medium hover:bg-teal-dark transition-colors disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
       >
-        {login.isPending ? 'Signing in…' : 'Sign in'}
+        {login.isPending && <Loader2 size={16} className="animate-spin" aria-hidden="true" />}
+        <span>{login.isPending ? 'Signing in…' : 'Sign in'}</span>
       </button>
 
       <p className="mt-4 text-center text-[12px] text-muted">

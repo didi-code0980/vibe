@@ -29,6 +29,13 @@ import com.das.skillmatrix.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * @deprecated USM features migrated to {@link com.das.skillmatrix.controller.admin.AdminUserController}
+ * exposed at {@code /api/admin/users}. This controller is kept for now to avoid breaking older
+ * non-admin clients that still rely on team-scoped read paths, but new admin-scope features
+ * (list with full data, create, lock/unlock, soft delete, activity) must use the admin surface.
+ */
+@Deprecated
 @RestController
 @RequestMapping("/api/users")
 @CrossOrigin(origins = "*")

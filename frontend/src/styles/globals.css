@@ -12,3 +12,7 @@
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #D3D4CE; border-radius: 2px; }
+
+.gap-10{
+  gap: 10px;
+}

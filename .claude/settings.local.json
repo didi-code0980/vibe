@@ -8,7 +8,12 @@
       "Bash(npx tsc *)",
       "Bash(python -m py_compile app/utils/validators.py app/schemas/auth.py app/core/security.py app/core/audit.py app/repositories/auth_repository.py app/services/auth_service.py app/routers/auth.py app/dependencies.py app/routers/users.py)",
       "Bash(./mvnw test *)",
-      "PowerShell($env:JAVA_HOME = \"C:\\\\Users\\\\ttnminh\\\\jdk-17\\\\jdk-17.0.19+10\"; Set-Location D:\\\\Projects\\\\SkillMatrix\\\\repo\\\\backend; .\\\\mvnw.cmd --version 2>&1 | Select-Object -First 5)"
+      "PowerShell($env:JAVA_HOME = \"C:\\\\Users\\\\ttnminh\\\\jdk-17\\\\jdk-17.0.19+10\"; Set-Location D:\\\\Projects\\\\SkillMatrix\\\\repo\\\\backend; .\\\\mvnw.cmd --version 2>&1 | Select-Object -First 5)",
+      "PowerShell(.\\\\start.ps1)",
+      "PowerShell(Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalPort, OwningProcess, @{n='Process';e={\\(Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue\\).ProcessName}})",
+      "PowerShell(Write-Host \"JAVA_HOME = $env:JAVA_HOME\"; Write-Host \"---\"; Write-Host \"java on PATH:\"; \\(Get-Command java -ErrorAction SilentlyContinue\\).Source; Write-Host \"javac on PATH:\"; \\(Get-Command javac -ErrorAction SilentlyContinue\\).Source; Write-Host \"---\"; java -version 2>&1; Write-Host \"---\"; javac -version 2>&1)",
+      "PowerShell($paths = @\\(\"C:\\\\Program Files\\\\Java\", \"C:\\\\Program Files\\\\Eclipse Adoptium\", \"C:\\\\Program Files\\\\Microsoft\", \"C:\\\\Program Files\\\\Zulu\", \"C:\\\\Program Files\\\\Amazon Corretto\", \"$env:LOCALAPPDATA\\\\Programs\\\\Eclipse Adoptium\"\\); foreach \\($p in $paths\\) { if \\(Test-Path $p\\) { Get-ChildItem $p -Directory -ErrorAction SilentlyContinue | ForEach-Object { $javac = Join-Path $_.FullName 'bin\\\\javac.exe'; if \\(Test-Path $javac\\) { Write-Host \"JDK: $\\($_.FullName\\)\" -ForegroundColor Green } else { Write-Host \"no javac: $\\($_.FullName\\)\" -ForegroundColor DarkGray } } } })",
+      "PowerShell(winget install --id EclipseAdoptium.Temurin.17.JDK --silent --accept-package-agreements --accept-source-agreements)"
     ]
   }
 }

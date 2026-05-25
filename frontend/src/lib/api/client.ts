@@ -76,7 +76,8 @@ async function request<T>(method: HttpMethod, path: string, options: RequestOpti
 
   if (!res.ok) {
     const data = await res.json().catch(() => null)
-    throw new ApiError(res.status, data?.message ?? res.statusText, data)
+    const message = data?.error?.message ?? data?.message ?? res.statusText
+    throw new ApiError(res.status, message, data)
   }
 
   if (res.status === 204) return undefined as T

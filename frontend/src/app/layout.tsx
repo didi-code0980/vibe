@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import '@/styles/globals.css'
 import { QueryProvider } from '@/providers/QueryProvider'
+import { Toaster } from '@/components/feedback/Toaster'
 
 export const metadata: Metadata = {
   title: 'SkillMatrix',
@@ -12,6 +13,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className="bg-fog font-sans text-ink antialiased">
         <QueryProvider>{children}</QueryProvider>
+        <Toaster />
       </body>
     </html>
   )
